@@ -1,7 +1,7 @@
 FROM webhippie/php-caddy:latest
 MAINTAINER Thomas Boerger <thomas@webhippie.de>
 
-VOLUME ["/var/lib/invoiceninja"]
+VOLUME ["/app/storage/app", "/app/storage/templates"]
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/bin/s6-svscan", "/etc/s6"]

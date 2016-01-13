@@ -1,26 +1,8 @@
 #!/bin/bash
 
-if [ ! -d /var/lib/invoiceninja/app ]
-then
-  mkdir -p /var/lib/invoiceninja/app
-fi
-
-if [ ! -d /var/lib/invoiceninja/templates ]
-then
-  mkdir -p /var/lib/invoiceninja/templates
-fi
-
-ln -sf \
-  /var/lib/invoiceninja/app \
-  /app/storage/app
-
-ln -sf \
-  /var/lib/invoiceninja/templates \
-  /app/storage/templates
-
-if [ "$(ls -A /var/lib/invoiceninja/templates)" == "" ]
+if [ "$(ls -A /app/storage/templates)" == "" ]
 then
   wget \
-    -qO /var/lib/invoiceninja/templates/plain.js \
+    -qO /app/storage/templates/plain.js \
     https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2.4.9.1/storage/templates/plain.js
 fi

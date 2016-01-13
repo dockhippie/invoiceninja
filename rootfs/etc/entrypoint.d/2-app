@@ -49,12 +49,12 @@ declare -x INVOICENINJA_LINKEDIN_CLIENT_SECRET
 
 if [ -z "${INVOICENINJA_APP_KEY}" ]
 then
-  if [ -f /var/lib/invoiceninja/secret ]
+  if [ -f /app/storage/app/secret ]
   then
-    INVOICENINJA_APP_KEY=$(cat /var/lib/invoiceninja/secret | head -n1)
+    INVOICENINJA_APP_KEY=$(cat /app/storage/app/secret | head -n1)
   else
     INVOICENINJA_APP_KEY=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-    echo "${INVOICENINJA_APP_KEY}" > /var/lib/invoiceninja/secret
+    echo "${INVOICENINJA_APP_KEY}" > /app/storage/app/secret
   fi
 fi
 
