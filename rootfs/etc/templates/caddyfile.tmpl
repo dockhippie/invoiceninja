@@ -4,6 +4,7 @@ root /app/public
 fastcgi / 127.0.0.1:9000 php
 
 rewrite  {
-  regexp .*
+  regexp /.*
+  ext /
   to /index.php?{query}
 }
