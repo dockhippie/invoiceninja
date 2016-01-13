@@ -1,0 +1,23 @@
+#!/bin/bash
+
+pushd /app > /dev/null
+  if [ -n "${GITHUB_TOKEN}" ]
+  then
+    /usr/bin/gosu \
+      caddy \
+      /usr/bin/composer \
+      config \
+      -n \
+      -g github-oauth.github.com \
+      ${GITHUB_TOKEN}
+  fi
+
+  /usr/bin/gosu \
+    caddy \
+    /usr/bin/composer \
+    install \
+    --no-dev \
+    -n \
+    -o \
+    --working-dir /app
+popd > /dev/null
