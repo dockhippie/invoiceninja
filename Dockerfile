@@ -21,6 +21,10 @@ RUN curl -sLo - \
   ${INVOICENINJA_TARBALL} | tar -xzf - --strip 1 -C /app
 
 RUN composer \
-  install --no-dev -n || true
+  install \
+  --no-dev \
+  -n \
+  -o \
+  --working-dir /app || true
 
 ADD rootfs /
