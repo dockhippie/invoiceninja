@@ -20,8 +20,35 @@ docker run -ti \
 * [latest](https://github.com/dockhippie/invoiceninja/tree/master)
   available as ```webhippie/invoiceninja:latest``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4](https://github.com/dockhippie/invoiceninja/tree/2.4)
-  available as ```webhippie/invoiceninja:2.4``` at
+* [2.4.9](https://github.com/dockhippie/invoiceninja/tree/2.4.9)
+  available as ```webhippie/invoiceninja:2.4.9``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.8](https://github.com/dockhippie/invoiceninja/tree/2.4.8)
+  available as ```webhippie/invoiceninja:2.4.8``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.7](https://github.com/dockhippie/invoiceninja/tree/2.4.7)
+  available as ```webhippie/invoiceninja:2.4.7``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.6](https://github.com/dockhippie/invoiceninja/tree/2.4.6)
+  available as ```webhippie/invoiceninja:2.4.6``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.5](https://github.com/dockhippie/invoiceninja/tree/2.4.5)
+  available as ```webhippie/invoiceninja:2.4.5``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.4](https://github.com/dockhippie/invoiceninja/tree/2.4.4)
+  available as ```webhippie/invoiceninja:2.4.4``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.3](https://github.com/dockhippie/invoiceninja/tree/2.4.3)
+  available as ```webhippie/invoiceninja:2.4.3``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.2](https://github.com/dockhippie/invoiceninja/tree/2.4.2)
+  available as ```webhippie/invoiceninja:2.4.2``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.1](https://github.com/dockhippie/invoiceninja/tree/2.4.1)
+  available as ```webhippie/invoiceninja:2.4.1``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.0](https://github.com/dockhippie/invoiceninja/tree/2.4.0)
+  available as ```webhippie/invoiceninja:2.4.0``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
 
 ## Available environment variables
