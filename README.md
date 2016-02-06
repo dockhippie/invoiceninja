@@ -2,7 +2,7 @@
 
 [![](https://badge.imagelayers.io/webhippie/invoiceninja:latest.svg)](https://imagelayers.io/?images=webhippie/invoiceninja:latest 'Get your own badge on imagelayers.io')
 
-These are docker images for InvoiceNinja with Apache running on an
+These are docker images for InvoiceNinja with Caddy running on an
 [PHP container](https://registry.hub.docker.com/u/webhippie/php-caddy/).
 
 
@@ -20,8 +20,8 @@ docker run -ti \
 * [latest](https://github.com/dockhippie/invoiceninja/tree/master)
   available as ```webhippie/invoiceninja:latest``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.9.1](https://github.com/dockhippie/invoiceninja/tree/master)
-  available as ```webhippie/invoiceninja:2.4.9.1``` at
+* [2.4](https://github.com/dockhippie/invoiceninja/tree/2.4)
+  available as ```webhippie/invoiceninja:2.4``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
 
 ## Available environment variables
