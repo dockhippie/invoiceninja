@@ -1,6 +1,27 @@
 #!/bin/bash
 
-if [ "$(ls -A /app/storage/templates)" == "" ]
+if [ ! -f /app/storage/templates/bold.js ]
+then
+  wget \
+    -qO /app/storage/templates/bold.js \
+    https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2.4.9.1/storage/templates/bold.js
+fi
+
+if [ ! -f /app/storage/templates/clean.js ]
+then
+  wget \
+    -qO /app/storage/templates/clean.js \
+    https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2.4.9.1/storage/templates/clean.js
+fi
+
+if [ ! -f /app/storage/templates/modern.js ]
+then
+  wget \
+    -qO /app/storage/templates/modern.js \
+    https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2.4.9.1/storage/templates/modern.js
+fi
+
+if [ ! -f /app/storage/templates/plain.js ]
 then
   wget \
     -qO /app/storage/templates/plain.js \
