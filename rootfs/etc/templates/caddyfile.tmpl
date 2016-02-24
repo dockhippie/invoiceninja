@@ -1,5 +1,8 @@
 :8080
-root /app/public
+root /srv/www/public
+
+log stdout
+errors stderr
 
 fastcgi / 127.0.0.1:9000 php
 
