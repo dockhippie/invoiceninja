@@ -20,6 +20,9 @@ docker run -ti \
 * [latest](https://github.com/dockhippie/invoiceninja/tree/master)
   available as ```webhippie/invoiceninja:latest``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.5.0](https://github.com/dockhippie/invoiceninja/tree/2.5.0)
+  available as ```webhippie/invoiceninja:2.5.0``` at
+  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
 * [2.4.9](https://github.com/dockhippie/invoiceninja/tree/2.4.9)
   available as ```webhippie/invoiceninja:2.4.9``` at
   [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)

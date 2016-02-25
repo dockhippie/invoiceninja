@@ -8,7 +8,7 @@ CMD ["/bin/s6-svscan", "/etc/s6"]
 EXPOSE 8080
 WORKDIR /srv/www
 
-ENV INVOICENINJA_VERSION 2.4.9.6
+ENV INVOICENINJA_VERSION 2.5.0.3
 ENV INVOICENINJA_TARBALL https://github.com/invoiceninja/invoiceninja/archive/v${INVOICENINJA_VERSION}.tar.gz
 
 RUN apk update && \
