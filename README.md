@@ -1,58 +1,24 @@
 # InvoiceNinja
 
-[![](https://badge.imagelayers.io/webhippie/invoiceninja:latest.svg)](https://imagelayers.io/?images=webhippie/invoiceninja:latest 'Get your own badge on imagelayers.io')
+[![](https://images.microbadger.com/badges/image/webhippie/invoiceninja.svg)](https://microbadger.com/images/webhippie/invoiceninja "Get your own image badge on microbadger.com")
 
-These are docker images for InvoiceNinja with Caddy running on an
-[PHP container](https://registry.hub.docker.com/u/webhippie/php-caddy/).
-
-
-## Usage
-
-```bash
-docker run -ti \
-  --name invoiceninja \
-  webhippie/invoiceninja:latest
-```
+These are docker images for [InvoiceNinja](https://www.invoiceninja.com/) with Caddy running on a [PHP container](https://registry.hub.docker.com/u/webhippie/php-caddy/).
 
 
 ## Versions
 
-* [latest](https://github.com/dockhippie/invoiceninja/tree/master)
-  available as ```webhippie/invoiceninja:latest``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.5.0](https://github.com/dockhippie/invoiceninja/tree/2.5.0)
-  available as ```webhippie/invoiceninja:2.5.0``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.9](https://github.com/dockhippie/invoiceninja/tree/2.4.9)
-  available as ```webhippie/invoiceninja:2.4.9``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.8](https://github.com/dockhippie/invoiceninja/tree/2.4.8)
-  available as ```webhippie/invoiceninja:2.4.8``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.7](https://github.com/dockhippie/invoiceninja/tree/2.4.7)
-  available as ```webhippie/invoiceninja:2.4.7``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.6](https://github.com/dockhippie/invoiceninja/tree/2.4.6)
-  available as ```webhippie/invoiceninja:2.4.6``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.5](https://github.com/dockhippie/invoiceninja/tree/2.4.5)
-  available as ```webhippie/invoiceninja:2.4.5``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.4](https://github.com/dockhippie/invoiceninja/tree/2.4.4)
-  available as ```webhippie/invoiceninja:2.4.4``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.3](https://github.com/dockhippie/invoiceninja/tree/2.4.3)
-  available as ```webhippie/invoiceninja:2.4.3``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.2](https://github.com/dockhippie/invoiceninja/tree/2.4.2)
-  available as ```webhippie/invoiceninja:2.4.2``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.1](https://github.com/dockhippie/invoiceninja/tree/2.4.1)
-  available as ```webhippie/invoiceninja:2.4.1``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
-* [2.4.0](https://github.com/dockhippie/invoiceninja/tree/2.4.0)
-  available as ```webhippie/invoiceninja:2.4.0``` at
-  [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [latest](https://github.com/dockhippie/invoiceninja/tree/master) available as ```webhippie/invoiceninja:latest``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.5.0](https://github.com/dockhippie/invoiceninja/tree/2.5.0) available as ```webhippie/invoiceninja:2.5.0``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.9](https://github.com/dockhippie/invoiceninja/tree/2.4.9) available as ```webhippie/invoiceninja:2.4.9``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.8](https://github.com/dockhippie/invoiceninja/tree/2.4.8) available as ```webhippie/invoiceninja:2.4.8``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.7](https://github.com/dockhippie/invoiceninja/tree/2.4.7) available as ```webhippie/invoiceninja:2.4.7``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.6](https://github.com/dockhippie/invoiceninja/tree/2.4.6) available as ```webhippie/invoiceninja:2.4.6``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.5](https://github.com/dockhippie/invoiceninja/tree/2.4.5) available as ```webhippie/invoiceninja:2.4.5``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.4](https://github.com/dockhippie/invoiceninja/tree/2.4.4) available as ```webhippie/invoiceninja:2.4.4``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.3](https://github.com/dockhippie/invoiceninja/tree/2.4.3) available as ```webhippie/invoiceninja:2.4.3``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.2](https://github.com/dockhippie/invoiceninja/tree/2.4.2) available as ```webhippie/invoiceninja:2.4.2``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.1](https://github.com/dockhippie/invoiceninja/tree/2.4.1) available as ```webhippie/invoiceninja:2.4.1``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
+* [2.4.0](https://github.com/dockhippie/invoiceninja/tree/2.4.0) available as ```webhippie/invoiceninja:2.4.0``` at [Docker Hub](https://registry.hub.docker.com/u/webhippie/invoiceninja/)
 
 
 ## Available environment variables
@@ -107,14 +73,18 @@ ENV PHP_DATE_TIMEZONE UTC
 ```
 
 ```bash
-ENV LOGSTASH_ENABLED false
-ENV LOGSTASH_HOST logstash
-ENV LOGSTASH_PORT 5043
-ENV LOGSTASH_CA /etc/ssl/logstash/certs/ca.pem # As string or filename
-ENV LOGSTASH_CERT /etc/ssl/logstash/certs/cert.pem # As string or filename
-ENV LOGSTASH_KEY /etc/ssl/logstash/private/cert.pem # As string or filename
-ENV LOGSTASH_TIMEOUT 15
-ENV LOGSTASH_OPTS
+ENV CADDY_AGREE false
+ENV CADDY_CA https://acme-v01.api.letsencrypt.org/directory
+ENV CADDY_CPU 100%
+ENV CADDY_EMAIL
+ENV CADDY_GRACE 5s
+ENV CADDY_HTTP2 true
+ENV CADDY_QUIET false
+ENV CADDY_WEBROOT /srv/www
+```
+
+```bash
+ENV CRON_ENABLED false
 ```
 
 
@@ -136,5 +106,5 @@ MIT
 ## Copyright
 
 ```
-Copyright (c) 2015 Thomas Boerger <http://www.webhippie.de>
+Copyright (c) 2015-2017 Thomas Boerger <http://www.webhippie.de>
 ```
