@@ -1,0 +1,8 @@
+.directory
+.idea
+demo.php
+vendor/
+documents/
+dirlist.app
+dirlist.cache
+dirlist.vendor

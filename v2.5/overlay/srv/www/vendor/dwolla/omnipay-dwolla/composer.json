@@ -1,0 +1,39 @@
+{
+    "name": "dwolla/omnipay-dwolla",
+    "type": "library",
+    "description": "Dwolla support for the Omnipay payment library",
+    "keywords": [
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "dwolla"
+    ],
+    "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrian Macneil",
+            "email": "adrian@adrianmacneil.com"
+        },
+        {
+            "name": "David Stancu",
+            "homepage": "https://github.com/mach-kernel"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Dwolla\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "~2.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "~2.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1.x-dev"
+        }
+    }
+}

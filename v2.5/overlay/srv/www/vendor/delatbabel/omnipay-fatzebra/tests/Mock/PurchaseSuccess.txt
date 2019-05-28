@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: close
+Status: 200 OK
+Cache-control: no-store
+Pragma: no-cache
+X-Request-Id: f77b11b9900c018d82427c43569ff2e1
+X-Runtime: 1.116515
+Date: Tue, 03 Feb 2015 20:25:26 GMT
+X-Rack-Cache: invalidate, pass
+X-Sandbox: true
+
+{"successful":true,"response":{"authorization":225104,"id":"525-P-S2Y05UQ9","card_number":"400555XXXXXX0001","card_holder":"Example Customer","card_expiry":"2023-05-31","card_token":"8njl0wi","amount":10,"decimal_amount":0.1,"successful":true,"message":"Approved","reference":"ORD999988","currency":"AUD","transaction_id":"525-P-S2Y05UQ9","settlement_date":"2015-02-05","transaction_date":"2015-02-04T07:25:25+11:00","response_code":"00","captured":true,"captured_amount":10},"errors":[],"test":true}

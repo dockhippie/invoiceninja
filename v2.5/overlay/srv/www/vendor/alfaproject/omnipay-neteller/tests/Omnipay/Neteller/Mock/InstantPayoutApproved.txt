@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+Server: Apache
+Content-Type: text/xml;charset=UTF-8
+Date: Tue, 11 Feb 2014 10:11:03 GMT
+Connection: Keep-Alive
+Content-Length: 777
+
+<?xml version="1.0" encoding="UTF-8"?>
+<instantpayout version="4.0">
+  <approval>yes</approval>
+  <amount>20.12</amount>
+  <trans_id>620392113464334</trans_id>
+  <custom_1 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_2 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_3 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <error>none</error>
+  <fee>0.71</fee>
+  <time>{ts'2014-02-11 10:11:03'}</time>
+  <firstname>EURFirstname</firstname>
+  <lastname>EURLastname</lastname>
+  <merchant_currency>EUR</merchant_currency>
+  <merchant_amount>20.12</merchant_amount>
+  <client_currency>EUR</client_currency>
+  <client_amount>20.12</client_amount>
+  <fxrate>1.00000000</fxrate>
+</instantpayout>
