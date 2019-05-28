@@ -40,7 +40,7 @@ class Countries extends Model {
     protected function getCountries()
     {
         //Get the countries from the JSON file
-        if (sizeof($this->countries) == 0){
+        if (is_null($this->countries) || sizeof($this->countries) == 0){
             $this->countries = json_decode(file_get_contents(__DIR__ . '/Models/countries.json'), true);
         }
 
@@ -72,9 +72,9 @@ class Countries extends Model {
 	{
 	    //Get the countries list
 	    $countries = $this->getCountries();
-	    
+
 	    //Sorting
-	    $validSorts = array(
+	    $validSorts = [
 	        'capital', 
 	        'citizenship',
 	        'country-code',
@@ -90,9 +90,9 @@ class Countries extends Model {
 	        'eea',
 	        'calling_code',
 	        'currency_symbol',
-	        'flag'
-        );
-	    
+	        'flag',
+        ];
+
 	    if (!is_null($sort) && in_array($sort, $validSorts)){
 	        uasort($countries, function($a, $b) use ($sort) {
 	            if (!isset($a[$sort]) && !isset($b[$sort])){
@@ -106,8 +106,26 @@ class Countries extends Model {
 	            } 
 	        });
 	    }
-	    
+
 	    //Return the countries
 		return $countries;
 	}
+
+    /**
+     * Returns a list of countries suitable to use with a select element in Laravelcollective\html
+     * Will show the value and sort by the column specified in the display attribute
+     *
+     * @param string display
+     *
+     * @return array
+     */
+    public function getListForSelect($display = 'name')
+    {
+        foreach ($this->getList($display) as $key => $value) {
+            $countries[$key] = $value[$display];
+        }
+
+        //return the array
+        return $countries;
+    }
 }

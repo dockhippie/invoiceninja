@@ -65,7 +65,7 @@ class CreateCardRequest extends AbstractRestRequest
         $data['card_holder'] = $card->getName();
         $data['card_number'] = $card->getNumber();
         $data['card_expiry'] = $card->getExpiryDate('m/Y');
-        $data['cvv'] = $card->getCvv();
+        $data['cvv']         = $card->getCvv();
 
         return $data;
     }

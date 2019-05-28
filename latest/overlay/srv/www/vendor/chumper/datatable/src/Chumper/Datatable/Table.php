@@ -169,12 +169,10 @@ class Table {
         $_orders = array();
         foreach ($order as $number => $sort)
         {
-            $_orders[] .= '[ ' . $number . ', "' . $sort . '" ]';
+            $_orders[] = [$number, $sort];
         }
 
-        $_build = '[' . implode(', ', $_orders) . ']';
-
-        $this->callbacks['aaSorting'] = $_build;
+        $this->callbacks['aaSorting'] = $_orders;
         return $this;
     }
 
@@ -286,6 +284,15 @@ class Table {
         if( ! is_null($view))
             $this->table_view = $view;
 
+        return View::make($this->table_view, $this->getViewParameters());
+    }
+    
+    /**
+     * returns an array with the parameters that will be passed to the view when it's rendered
+     * @return array
+     */
+    public function getViewParameters()
+    {
         if(!isset($this->options['sAjaxSource']))
         {
             $this->setUrl(Request::url());
@@ -296,17 +303,16 @@ class Table {
         {
             $this->createMapping();
         }
-
-        return View::make($this->table_view,array(
-            'options'   => $this->options,
+        return array(
             'callbacks' => $this->callbacks,
+            'options'   => $this->options,
             'values'    => $this->customValues,
             'data'      => $this->data,
             'columns'   => array_combine($this->aliasColumns,$this->columns),
             'noScript'  => $this->noScript,
             'id'        => $this->idName,
             'class'     => $this->className,
-        ));
+        );
     }
 
     /**
@@ -320,6 +326,46 @@ class Table {
         return $this;
     }
 
+	private function convertData($options) {
+		$is_obj = false;
+		$first = true;
+		$data = "";
+		foreach ($options as $k => $o) {
+			if ($first == true) {
+				if (!is_numeric($k)) {
+					$is_obj = true;
+				}
+				$first = false;
+			} else {
+				$data .= ",\n";
+			}
+			if (!is_numeric($k)) {
+				$data .= json_encode($k) . ":";
+			}
+			if (is_string($o)) {
+				if (@preg_match("#^\s*function\s*\([^\)]*#", $o)) {
+					$data .= $o;
+				} else {
+					$data .= json_encode($o);
+				}
+			} else {
+				if (is_array($o)) {
+					$data .= $this->convertData($o);
+				} else {
+					$data .= json_encode($o);
+				}
+			}
+		}
+
+		if ($is_obj) {
+			$data = "{ $data }";
+		} else {
+			$data = "[ $data ]";
+		}
+
+		return $data;
+	}
+
     public function script($view = null)
     {
         if( ! is_null($view))
@@ -332,8 +378,7 @@ class Table {
         }
 
         return View::make($this->script_view,array(
-            'options'   =>  $this->options,
-            'callbacks' =>  $this->callbacks,
+            'options' => $this->convertData(array_merge($this->options, $this->callbacks)),
             'id'        =>  $this->idName,
         ));
     }

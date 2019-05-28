@@ -34,8 +34,11 @@ class ExpressPurchaseRequest extends BasePurchaseRequest
             "_input_charset"     => $this->getInputCharset(),
             "extra_common_param" => $this->getExtraCommonParam(),
             "extend_param"       => $this->getExtendParam(),
+            "it_b_pay"           => $this->getItBPay(),
+            "qr_pay_mode"        => $this->getQrPayMode(),
         );
-        $data              = array_filter($data);
+
+        $data              = array_filter($data, 'strlen');
         $data['sign']      = $this->getParamsSignature($data);
         $data['sign_type'] = $this->getSignType();
 
@@ -64,6 +67,11 @@ class ExpressPurchaseRequest extends BasePurchaseRequest
     public function getDefaultBank()
     {
         return $this->getParameter('default_bank');
+    }
+
+    public function getQrPayMode()
+    {
+        return $this->getParameter('qr_pay_mode');
     }
 
 
@@ -99,5 +107,11 @@ class ExpressPurchaseRequest extends BasePurchaseRequest
     public function setItBPay($value)
     {
         $this->setParameter('it_b_pay', $value);
+    }
+
+
+    public function setQrPayMode($value)
+    {
+        $this->setParameter('qr_pay_mode', $value);
     }
 }

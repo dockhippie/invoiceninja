@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,7 +26,7 @@ use Psy\Exception\FatalErrorException;
  * @todo Detect constants defined in the current code snippet?
  *       ... Might not be worth it, since it would need to both be defining and
  *       referencing a namespaced constant, which doesn't seem like that big of
- *       a target for failure.
+ *       a target for failure
  */
 class ValidConstantPass extends NamespaceAwarePass
 {
@@ -36,7 +36,7 @@ class ValidConstantPass extends NamespaceAwarePass
      * Note that this does not (yet) detect constants defined in the current code
      * snippet. It won't happen very often, so we'll punt for now.
      *
-     * @throws FatalErrorException if a constant reference is not defined.
+     * @throws FatalErrorException if a constant reference is not defined
      *
      * @param Node $node
      */
@@ -45,7 +45,8 @@ class ValidConstantPass extends NamespaceAwarePass
         if ($node instanceof ConstFetch && count($node->name->parts) > 1) {
             $name = $this->getFullyQualifiedName($node->name);
             if (!defined($name)) {
-                throw new FatalErrorException(sprintf('Undefined constant %s', $name), 0, 1, null, $node->getLine());
+                $msg = sprintf('Undefined constant %s', $name);
+                throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
             }
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);
@@ -55,23 +56,29 @@ class ValidConstantPass extends NamespaceAwarePass
     /**
      * Validate a class constant fetch expression.
      *
-     * @throws FatalErrorException if a class constant is not defined.
+     * @throws FatalErrorException if a class constant is not defined
      *
      * @param ClassConstFetch $stmt
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
+        // give the `class` pseudo-constant a pass
+        if ($stmt->name === 'class') {
+            return;
+        }
+
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
             $className = $this->getFullyQualifiedName($stmt->class);
 
             // if the class doesn't exist, don't throw an exception… it might be
             // defined in the same line it's used or something stupid like that.
-            if (class_exists($className)) {
-                $constName = sprintf('%s::%s', $className, $stmt->name);
-                if (!defined($constName)) {
-                    $msg = sprintf('Class constant \'%s\' not found', $constName);
-                    throw new FatalErrorException($msg, 0, 1, null, $stmt->getLine());
+            if (class_exists($className) || interface_exists($className)) {
+                $refl = new \ReflectionClass($className);
+                if (!$refl->hasConstant($stmt->name)) {
+                    $constType = class_exists($className) ? 'Class' : 'Interface';
+                    $msg = sprintf('%s constant \'%s::%s\' not found', $constType, $className, $stmt->name);
+                    throw new FatalErrorException($msg, 0, E_ERROR, null, $stmt->getLine());
                 }
             }
         }

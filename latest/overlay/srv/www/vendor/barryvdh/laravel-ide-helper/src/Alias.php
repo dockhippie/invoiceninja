@@ -15,6 +15,8 @@ class Alias
     protected $alias;
     protected $facade;
     protected $extends = null;
+    protected $extendsClass = null;
+    protected $extendsNamespace = null;
     protected $classType = 'class';
     protected $short;
     protected $namespace = '__root';
@@ -53,8 +55,9 @@ class Alias
         $this->addClass($this->root);
         $this->detectNamespace();
         $this->detectClassType();
+        $this->detectExtendsNamespace();
         
-        if($facade === '\Illuminate\Database\Eloquent\Model'){
+        if ($facade === '\Illuminate\Database\Eloquent\Model') {
             $this->usedMethods = array('decrement', 'increment');
         }
     }
@@ -70,7 +73,7 @@ class Alias
         foreach ($classes as $class) {
             if (class_exists($class) || interface_exists($class)) {
                 $this->classes[] = $class;
-            }else{
+            } else {
                 echo "Class not exists: $class\r\n";
             }
         }
@@ -104,6 +107,26 @@ class Alias
     {
         return $this->extends;
     }
+    
+    /**
+     * Get the class short name which this alias extends
+     *
+     * @return null|string
+     */
+    public function getExtendsClass()
+    {
+        return $this->extendsClass;
+    }
+    
+    /**
+     * Get the namespace of the class which this alias extends
+     *
+     * @return null|string
+     */
+    public function getExtendsNamespace()
+    {
+        return $this->extendsNamespace;
+    }
 
     /**
      * Get the Alias by which this class is called
@@ -118,7 +141,8 @@ class Alias
     /**
      * Return the short name (without namespace)
      */
-    public function getShortName(){
+    public function getShortName()
+    {
         return $this->short;
     }
     /**
@@ -152,8 +176,20 @@ class Alias
             $nsParts = explode('\\', $this->alias);
             $this->short = array_pop($nsParts);
             $this->namespace = implode('\\', $nsParts);
-        }else{
+        } else {
             $this->short = $this->alias;
+        }
+    }
+    
+    /**
+     * Detect the extends namespace
+     */
+    protected function detectExtendsNamespace()
+    {
+        if (strpos($this->extends, '\\') !== false) {
+            $nsParts = explode('\\', $this->extends);
+            $this->extendsClass = array_pop($nsParts);
+            $this->extendsNamespace = implode('\\', $nsParts);
         }
     }
 
@@ -201,7 +237,9 @@ class Alias
             //When the database connection is not set, some classes will be skipped
         } catch (\PDOException $e) {
             $this->error(
-                "PDOException: " . $e->getMessage() . "\nPlease configure your database connection correctly, or use the sqlite memory driver (-M). Skipping $facade."
+                "PDOException: " . $e->getMessage() .
+                "\nPlease configure your database connection correctly, or use the sqlite memory driver (-M)." .
+                " Skipping $facade."
             );
         } catch (\Exception $e) {
             $this->error("Exception: " . $e->getMessage() . "\nSkipping $facade.");
@@ -227,16 +265,16 @@ class Alias
      */
     protected function addMagicMethods()
     {
-        foreach($this->magicMethods as $magic => $real){
+        foreach ($this->magicMethods as $magic => $real) {
             list($className, $name) = explode('::', $real);
-            if(!class_exists($className) && !interface_exists($className)){
+            if (!class_exists($className) && !interface_exists($className)) {
                 continue;
             }
             $method = new \ReflectionMethod($className, $name);
             $class = new \ReflectionClass($className);
 
-            if(!in_array($method->name, $this->usedMethods)){
-                if($class !== $this->root){
+            if (!in_array($method->name, $this->usedMethods)) {
+                if ($class !== $this->root) {
                     $this->methods[] = new Method($method, $this->alias, $class, $magic, $this->interfaces);
                 }
                 $this->usedMethods[] = $magic;
@@ -262,10 +300,34 @@ class Alias
                         // Only add the methods to the output when the root is not the same as the class.
                         // And don't add the __*() methods
                         if ($this->extends !== $class && substr($method->name, 0, 2) !== '__') {
-                            $this->methods[] = new Method($method, $this->alias, $reflection, $method->name, $this->interfaces);
+                            $this->methods[] = new Method(
+                                $method,
+                                $this->alias,
+                                $reflection,
+                                $method->name,
+                                $this->interfaces
+                            );
                         }
                         $this->usedMethods[] = $method->name;
                     }
+                }
+            }
+
+            // Check if the class is macroable
+            $traits = collect($reflection->getTraitNames());
+            if ($traits->contains('Illuminate\Support\Traits\Macroable')) {
+                $properties = $reflection->getStaticProperties();
+                $macros = isset($properties['macros']) ? $properties['macros'] : [];
+                foreach ($macros as $macro_name => $macro_func) {
+                    $function = new \ReflectionFunction($macro_func);
+                    // Add macros
+                    $this->methods[] = new Macro(
+                        $function,
+                        $this->alias,
+                        $reflection,
+                        $macro_name,
+                        $this->interfaces
+                    );
                 }
             }
         }

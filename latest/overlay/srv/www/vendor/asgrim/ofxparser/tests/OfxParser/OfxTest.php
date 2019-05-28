@@ -1,28 +1,65 @@
 <?php
 
-namespace OfxParser;
+namespace OfxParserTest;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+use OfxParser\Ofx;
 
+/**
+ * @covers OfxParser\Ofx
+ */
 class OfxTest extends \PHPUnit_Framework_TestCase
 {
-    protected $ofxdata;
+    /**
+     * @var \SimpleXMLElement
+     */
+    protected $ofxData;
 
     public function setUp()
     {
-        $ofxFile = 'fixtures/ofxdata-xml.ofx';
+        $ofxFile = dirname(__DIR__).'/fixtures/ofxdata-xml.ofx';
 
-        if (!file_exists($ofxFile))
-        {
-            $this->markTestSkipped('Could not find data file, cannot test Ofx Class');
+        if (!file_exists($ofxFile)) {
+            self::markTestSkipped('Could not find data file, cannot test Ofx Class');
         }
-        $this->ofxdata = simplexml_load_string( file_get_contents($ofxFile) );
+        $this->ofxData = simplexml_load_string(file_get_contents($ofxFile));
     }
 
-    public function testAcceptOnlySimpleXMLElement()
+    public function amountConversionProvider()
     {
-        $this->setExpectedException('\Exception');
-        new Ofx('This is not an SimpleXMLObject');
+        return [
+            '1000.00' => ['1000.00', 1000.0],
+            '1000,00' => ['1000,00', 1000.0],
+            '1,000.00' => ['1,000.00', 1000.0],
+            '1.000,00' => ['1.000,00', 1000.0],
+            '-1000.00' => ['-1000.00', -1000.0],
+            '-1000,00' => ['-1000,00', -1000.0],
+            '-1,000.00' => ['-1,000.00', -1000.0],
+            '-1.000,00' => ['-1.000,00', -1000.0],
+            '1' => ['1', 1.0],
+            '10' => ['10', 10.0],
+            '100' => ['100', 1.0], // @todo this is weird behaviour, should not really expect this
+            '+1' => ['+1', 1.0],
+            '+10' => ['+10', 10.0],
+            '+1000.00' => ['+1000.00', 1000.0],
+            '+1000,00' => ['+1000,00', 1000.0],
+            '+1,000.00' => ['+1,000.00', 1000.0],
+            '+1.000,00' => ['+1.000,00', 1000.0],
+        ];
+    }
+
+    /**
+     * @param string $input
+     * @param float $output
+     * @dataProvider amountConversionProvider
+     */
+    public function testCreateAmountFromStr($input, $output)
+    {
+        $method = new \ReflectionMethod(Ofx::class, 'createAmountFromStr');
+        $method->setAccessible(true);
+
+        $ofx = new Ofx($this->ofxData);
+
+        self::assertSame($output, $method->invoke($ofx, $input));
     }
 
     public function testCreateDateTimeFromOFXDateFormats()
@@ -30,121 +67,120 @@ class OfxTest extends \PHPUnit_Framework_TestCase
         // October 5, 2008, at 1:22 and 124 milliseconds pm, Easter Standard Time
         $expectedDateTime = new \DateTime('2008-10-05 13:22:00');
 
-        $method = new \ReflectionMethod('\OfxParser\Ofx', 'createDateTimeFromStr');
+        $method = new \ReflectionMethod(Ofx::class, 'createDateTimeFromStr');
         $method->setAccessible(true);
 
-        $Ofx = new Ofx($this->ofxdata);
+        $Ofx = new Ofx($this->ofxData);
 
         // Test OFX Date Format YYYYMMDDHHMMSS.XXX[gmt offset:tz name]
         $DateTimeOne = $method->invoke($Ofx, '20081005132200.124[-5:EST]');
-        $this->assertEquals($expectedDateTime->getTimestamp(), $DateTimeOne->getTimestamp());
+        self::assertEquals($expectedDateTime->getTimestamp(), $DateTimeOne->getTimestamp());
 
         // Test YYYYMMDD
         $DateTimeTwo = $method->invoke($Ofx, '20081005');
-        $this->assertEquals($expectedDateTime->format('Y-m-d'), $DateTimeTwo->format('Y-m-d'));
+        self::assertEquals($expectedDateTime->format('Y-m-d'), $DateTimeTwo->format('Y-m-d'));
 
         // Test YYYYMMDDHHMMSS
         $DateTimeThree = $method->invoke($Ofx, '20081005132200');
-        $this->assertEquals($expectedDateTime->getTimestamp(), $DateTimeThree->getTimestamp());
+        self::assertEquals($expectedDateTime->getTimestamp(), $DateTimeThree->getTimestamp());
 
         // Test YYYYMMDDHHMMSS.XXX
         $DateTimeFour = $method->invoke($Ofx, '20081005132200.124');
-        $this->assertEquals($expectedDateTime->getTimestamp(), $DateTimeFour->getTimestamp());
+        self::assertEquals($expectedDateTime->getTimestamp(), $DateTimeFour->getTimestamp());
     }
 
     public function testBuildsSignOn()
     {
-        $Ofx = new Ofx($this->ofxdata);
-        $this->assertEquals('', $Ofx->SignOn->Status->message);
-        $this->assertEquals('0', $Ofx->SignOn->Status->code);
-        $this->assertEquals('INFO', $Ofx->SignOn->Status->severity);
-        $this->assertEquals('Success', $Ofx->SignOn->Status->codeDesc);
+        $ofx = new Ofx($this->ofxData);
+        self::assertEquals('', $ofx->signOn->status->message);
+        self::assertEquals('0', $ofx->signOn->status->code);
+        self::assertEquals('INFO', $ofx->signOn->status->severity);
+        self::assertEquals('Success', $ofx->signOn->status->codeDesc);
 
-        $this->assertInstanceOf('DateTime', $Ofx->SignOn->date);
-        $this->assertEquals('ENG', $Ofx->SignOn->language);
-        $this->assertEquals('MYBANK', $Ofx->SignOn->Institute->name);
-        $this->assertEquals('01234', $Ofx->SignOn->Institute->id);
+        self::assertInstanceOf('DateTime', $ofx->signOn->date);
+        self::assertEquals('ENG', $ofx->signOn->language);
+        self::assertEquals('MYBANK', $ofx->signOn->institute->name);
+        self::assertEquals('01234', $ofx->signOn->institute->id);
     }
 
     public function testBuildsMultipleBankAccounts()
     {
-        $multiOfxFile = 'fixtures/ofx-multiple-accounts-xml.ofx';
-        if (!file_exists($multiOfxFile))
-        {
-            $this->markTestSkipped('Could not find multiple account data file, cannot fully test Multiple Bank Accounts');
+        $multiOfxFile = dirname(__DIR__).'/fixtures/ofx-multiple-accounts-xml.ofx';
+        if (!file_exists($multiOfxFile)) {
+            self::markTestSkipped('Could not find multiple account data file, cannot fully test Multiple Bank Accounts');
         }
-        $multiOfxData = simplexml_load_string( file_get_contents($multiOfxFile) );
-        $Ofx = new Ofx($multiOfxData);
+        $multiOfxData = simplexml_load_string(file_get_contents($multiOfxFile));
+        $ofx = new Ofx($multiOfxData);
 
-        $this->assertCount(3, $Ofx->BankAccounts);
-        $this->assertEmpty($Ofx->BankAccount);
+        self::assertCount(3, $ofx->bankAccounts);
+        self::assertEmpty($ofx->bankAccount);
     }
 
-     public function testBuildsBankAccount()
-     {
-         $Ofx = new Ofx($this->ofxdata);
+    public function testBuildsBankAccount()
+    {
+        $Ofx = new Ofx($this->ofxData);
 
-         $Account = $Ofx->BankAccount;
-         $this->assertEquals('23382938', $Account->transactionUid);
-         $this->assertEquals('098-121', $Account->accountNumber);
-         $this->assertEquals('987654321', $Account->routingNumber);
-         $this->assertEquals('SAVINGS', $Account->accountType);
-         $this->assertEquals('5250.00', $Account->balance);
-         $this->assertInstanceOf('DateTime', $Account->balanceDate);
+        $bankAccount = $Ofx->bankAccount;
+        self::assertEquals('23382938', $bankAccount->transactionUid);
+        self::assertEquals('098-121', $bankAccount->accountNumber);
+        self::assertEquals('987654321', $bankAccount->routingNumber);
+        self::assertEquals('SAVINGS', $bankAccount->accountType);
+        self::assertEquals('5250.00', $bankAccount->balance);
+        self::assertInstanceOf('DateTime', $bankAccount->balanceDate);
 
-         $Statement = $Account->Statement;
-         $this->assertEquals('USD', $Statement->currency);
-         $this->assertInstanceOf('DateTime', $Statement->startDate);
-         $this->assertInstanceOf('DateTime', $Statement->endDate);
+        $statement = $bankAccount->statement;
+        self::assertEquals('USD', $statement->currency);
+        self::assertInstanceOf('DateTime', $statement->startDate);
+        self::assertInstanceOf('DateTime', $statement->endDate);
 
-         $Transactions = $Statement->transactions;
-         $this->assertCount(3, $Transactions);
+        $transactions = $statement->transactions;
+        self::assertCount(3, $transactions);
 
-         $expectedTransactions = [
-             [
-                'type' => 'CREDIT',
-                'typeDesc' => 'Generic credit',
-                'amount' => '200.00',
-                'uniqueId' => '980315001',
-                'name' => 'DEPOSIT',
-                'memo' => 'automatic deposit',
-                'sic' => '',
-                'checkNumber' => ''
-             ],
-             [
-                 'type' => 'CREDIT',
-                 'typeDesc' => 'Generic credit',
-                 'amount' => '150.00',
-                 'uniqueId' => '980310001',
-                 'name' => 'TRANSFER',
-                 'memo' => 'Transfer from checking',
-                 'sic' => '',
-                 'checkNumber' => ''
-             ],
-             [
-                 'type' => 'CHECK',
-                 'typeDesc' => 'Cheque',
-                 'amount' => '-100.00',
-                 'uniqueId' => '980309001',
-                 'name' => 'Cheque',
-                 'memo' => '',
-                 'sic' => '',
-                 'checkNumber' => '1025'
-             ],
+        $expectedTransactions = [
+           [
+              'type' => 'CREDIT',
+              'typeDesc' => 'Generic credit',
+              'amount' => '200.00',
+              'uniqueId' => '980315001',
+              'name' => 'DEPOSIT',
+              'memo' => 'automatic deposit',
+              'sic' => '',
+              'checkNumber' => ''
+           ],
+           [
+               'type' => 'CREDIT',
+               'typeDesc' => 'Generic credit',
+               'amount' => '150.00',
+               'uniqueId' => '980310001',
+               'name' => 'TRANSFER',
+               'memo' => 'Transfer from checking',
+               'sic' => '',
+               'checkNumber' => ''
+           ],
+           [
+               'type' => 'CHECK',
+               'typeDesc' => 'Cheque',
+               'amount' => '-100.00',
+               'uniqueId' => '980309001',
+               'name' => 'Cheque',
+               'memo' => '',
+               'sic' => '',
+               'checkNumber' => '1025'
+           ],
 
-         ];
+        ];
 
-         foreach( $Transactions as $i => $transaction )
-         {
-             $this->assertEquals($expectedTransactions[$i]['type'], $transaction->type);
-             $this->assertEquals($expectedTransactions[$i]['typeDesc'], $transaction->typeDesc);
-             $this->assertEquals($expectedTransactions[$i]['amount'], $transaction->amount);
-             $this->assertEquals($expectedTransactions[$i]['uniqueId'], $transaction->uniqueId);
-             $this->assertEquals($expectedTransactions[$i]['name'], $transaction->name);
-             $this->assertEquals($expectedTransactions[$i]['memo'], $transaction->memo);
-             $this->assertEquals($expectedTransactions[$i]['sic'], $transaction->sic);
-             $this->assertEquals($expectedTransactions[$i]['checkNumber'], $transaction->checkNumber);
-             $this->assertInstanceOf('DateTime', $transaction->date);
-         }
-     }
+        foreach ($transactions as $i => $transaction) {
+            self::assertEquals($expectedTransactions[$i]['type'], $transaction->type);
+            self::assertEquals($expectedTransactions[$i]['typeDesc'], $transaction->typeDesc);
+            self::assertEquals($expectedTransactions[$i]['amount'], $transaction->amount);
+            self::assertEquals($expectedTransactions[$i]['uniqueId'], $transaction->uniqueId);
+            self::assertEquals($expectedTransactions[$i]['name'], $transaction->name);
+            self::assertEquals($expectedTransactions[$i]['memo'], $transaction->memo);
+            self::assertEquals($expectedTransactions[$i]['sic'], $transaction->sic);
+            self::assertEquals($expectedTransactions[$i]['checkNumber'], $transaction->checkNumber);
+            self::assertInstanceOf('DateTime', $transaction->date);
+            self::assertInstanceOf('DateTime', $transaction->userInitiatedDate);
+        }
+    }
 }

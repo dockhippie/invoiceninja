@@ -2,13 +2,15 @@
 
 namespace Maatwebsite\Excel\Readers;
 
-use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Filters\ChunkReadFilter;
 use SuperClosure\Serializer;
 
-class ChunkedReadJob implements SelfHandling, ShouldQueue
+class ChunkedReadJob implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * @var int
      */
@@ -95,7 +97,7 @@ class ChunkedReadJob implements SelfHandling, ShouldQueue
         $reader->excel = $reader->reader->load($this->file);
 
         // Slice the results
-        $results = $reader->get()->slice($this->startIndex, $this->chunkSize);
+        $results = $reader->limitRows($this->chunkSize, $this->startIndex)->get();
 
         $callback = $this->shouldQueue ? (new Serializer)->unserialize($this->callback) : $this->callback;
 

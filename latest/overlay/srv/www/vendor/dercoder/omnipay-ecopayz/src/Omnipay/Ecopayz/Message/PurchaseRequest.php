@@ -12,7 +12,7 @@ namespace Omnipay\Ecopayz\Message;
  * @author Alexander Fedra <contact@dercoder.at>
  * @copyright 2015 DerCoder
  * @license http://opensource.org/licenses/mit-license.php MIT
- * @version 2.0.3 Ecopayz API Specification
+ * @version 2.0.6 Ecopayz API Specification
  */
 class PurchaseRequest extends AbstractRequest
 {
@@ -65,8 +65,20 @@ class PurchaseRequest extends AbstractRequest
         $data['Amount'] = $this->getAmount();
         $data['Currency'] = $this->getCurrency();
         $data['MerchantFreeText'] = $this->getDescription();
-        $data['Checksum'] = $this->calculateArrayChecksum($data);
 
+        if ($returnUrl = $this->getReturnUrl()) {
+            $data['OnSuccessUrl'] = $returnUrl;
+        }
+
+        if ($cancelUrl = $this->getCancelUrl()) {
+            $data['OnFailureUrl'] = $cancelUrl;
+        }
+
+        if ($notifyUrl = $this->getNotifyUrl()) {
+            $data['TransferUrl'] = $notifyUrl;
+        }
+
+        $data['Checksum'] = $this->calculateArrayChecksum($data);
         return $data;
     }
 

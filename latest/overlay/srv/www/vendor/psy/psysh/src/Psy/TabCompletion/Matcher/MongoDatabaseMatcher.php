@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,7 +21,7 @@ namespace Psy\TabCompletion\Matcher;
 class MongoDatabaseMatcher extends AbstractContextAwareMatcher
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -33,8 +33,8 @@ class MongoDatabaseMatcher extends AbstractContextAwareMatcher
             array_pop($tokens);
         }
         $objectToken = array_pop($tokens);
-        $objectName = str_replace('$', '', $objectToken[1]);
-        $object = $this->getVariable($objectName);
+        $objectName  = str_replace('$', '', $objectToken[1]);
+        $object      = $this->getVariable($objectName);
 
         if (!$object instanceof \MongoDB) {
             return array();
@@ -49,11 +49,11 @@ class MongoDatabaseMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {
-        $token = array_pop($tokens);
+        $token     = array_pop($tokens);
         $prevToken = array_pop($tokens);
 
         switch (true) {

@@ -1,18 +1,21 @@
-<?php namespace Illuminate\View;
+<?php
 
-use Closure;
+namespace Illuminate\View;
+
+use Exception;
+use Throwable;
 use ArrayAccess;
 use BadMethodCallException;
+use Illuminate\Support\Str;
 use Illuminate\Support\MessageBag;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\View\Engines\EngineInterface;
 use Illuminate\Contracts\Support\Renderable;
+use Illuminate\View\Engines\EngineInterface;
 use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Contracts\View\View as ViewContract;
 
 class View implements ArrayAccess, ViewContract
 {
-
     /**
      * The view factory instance.
      *
@@ -55,10 +58,10 @@ class View implements ArrayAccess, ViewContract
      * @param  \Illuminate\View\Engines\EngineInterface  $engine
      * @param  string  $view
      * @param  string  $path
-     * @param  array   $data
+     * @param  mixed  $data
      * @return void
      */
-    public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = array())
+    public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = [])
     {
         $this->view = $view;
         $this->path = $path;
@@ -71,24 +74,30 @@ class View implements ArrayAccess, ViewContract
     /**
      * Get the string contents of the view.
      *
-     * @param  \Closure|null  $callback
+     * @param  callable|null  $callback
      * @return string
+     *
+     * @throws \Throwable
      */
-    public function render(Closure $callback = null)
+    public function render(callable $callback = null)
     {
         try {
             $contents = $this->renderContents();
 
-            $response = isset($callback) ? $callback($this, $contents) : null;
+            $response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
 
             // Once we have the contents of the view, we will flush the sections if we are
             // done rendering all views so that there is nothing left hanging over when
             // another view gets rendered in the future by the application developer.
-            $this->factory->flushSectionsIfDoneRendering();
+            $this->factory->flushStateIfDoneRendering();
 
-            return $response ?: $contents;
+            return ! is_null($response) ? $response : $contents;
         } catch (Exception $e) {
-            $this->factory->flushSections();
+            $this->factory->flushState();
+
+            throw $e;
+        } catch (Throwable $e) {
+            $this->factory->flushState();
 
             throw $e;
         }
@@ -116,20 +125,6 @@ class View implements ArrayAccess, ViewContract
         $this->factory->decrementRender();
 
         return $contents;
-    }
-
-    /**
-     * Get the sections of the rendered view.
-     *
-     * @return array
-     */
-    public function renderSections()
-    {
-        $env = $this->factory;
-
-        return $this->render(function ($view) use ($env) {
-            return $env->getSections();
-        });
     }
 
     /**
@@ -161,6 +156,18 @@ class View implements ArrayAccess, ViewContract
     }
 
     /**
+     * Get the sections of the rendered view.
+     *
+     * @return array
+     */
+    public function renderSections()
+    {
+        return $this->render(function () {
+            return $this->factory->getSections();
+        });
+    }
+
+    /**
      * Add a piece of data to the view.
      *
      * @param  string|array  $key
@@ -186,7 +193,7 @@ class View implements ArrayAccess, ViewContract
      * @param  array   $data
      * @return $this
      */
-    public function nest($key, $view, array $data = array())
+    public function nest($key, $view, array $data = [])
     {
         return $this->with($key, $this->factory->make($view, $data));
     }
@@ -199,33 +206,21 @@ class View implements ArrayAccess, ViewContract
      */
     public function withErrors($provider)
     {
-        if ($provider instanceof MessageProvider) {
-            $this->with('errors', $provider->getMessageBag());
-        } else {
-            $this->with('errors', new MessageBag((array) $provider));
-        }
+        $this->with('errors', $this->formatErrors($provider));
 
         return $this;
     }
 
     /**
-     * Get the view factory instance.
+     * Format the given message provider into a MessageBag.
      *
-     * @return \Illuminate\View\Factory
+     * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
+     * @return \Illuminate\Support\MessageBag
      */
-    public function getFactory()
+    protected function formatErrors($provider)
     {
-        return $this->factory;
-    }
-
-    /**
-     * Get the view's rendering engine.
-     *
-     * @return \Illuminate\View\Engines\EngineInterface
-     */
-    public function getEngine()
-    {
-        return $this->engine;
+        return $provider instanceof MessageProvider
+                        ? $provider->getMessageBag() : new MessageBag((array) $provider);
     }
 
     /**
@@ -277,6 +272,26 @@ class View implements ArrayAccess, ViewContract
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * Get the view factory instance.
+     *
+     * @return \Illuminate\View\Factory
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * Get the view's rendering engine.
+     *
+     * @return \Illuminate\View\Engines\EngineInterface
+     */
+    public function getEngine()
+    {
+        return $this->engine;
     }
 
     /**
@@ -380,11 +395,11 @@ class View implements ArrayAccess, ViewContract
      */
     public function __call($method, $parameters)
     {
-        if (starts_with($method, 'with')) {
-            return $this->with(snake_case(substr($method, 4)), $parameters[0]);
+        if (! Str::startsWith($method, 'with')) {
+            throw new BadMethodCallException("Method [$method] does not exist on view.");
         }
 
-        throw new BadMethodCallException("Method [$method] does not exist on view.");
+        return $this->with(Str::snake(substr($method, 4)), $parameters[0]);
     }
 
     /**

@@ -13,12 +13,6 @@ use Omnipay\Common\Exception\InvalidRequestException;
  */
 class CompletePurchaseRequest extends FetchTransactionRequest
 {
-    private $trustedIps = array(
-        '213.129.76.104', '213.129.76.105',
-        '217.21.162.163', '217.21.162.164',
-        '176.57.42.131', '176.57.42.132'
-    );
-
     /**
      * Get the data for this request.
      *
@@ -31,14 +25,6 @@ class CompletePurchaseRequest extends FetchTransactionRequest
             'merchantId',
             'merchantPassword'
         );
-
-        if (!$this->getTestMode()) {
-
-            if (!in_array($this->httpRequest->getClientIp(), $this->trustedIps)) {
-                throw new InvalidRequestException('IP Address is invalid to access this function');
-            }
-
-        }
 
         if ($xml = $this->httpRequest->request->get('XML')) {
 

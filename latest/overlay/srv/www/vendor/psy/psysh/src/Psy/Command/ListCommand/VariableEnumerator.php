@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
 namespace Psy\Command\ListCommand;
 
 use Psy\Context;
-use Psy\Presenter\PresenterManager;
+use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -20,7 +20,11 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class VariableEnumerator extends Enumerator
 {
-    private static $specialVars = array('_', '_e');
+    // n.b. this array is the order in which special variables will be listed
+    private static $specialNames = array(
+        '_', '_e', '__out', '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
+    );
+
     private $context;
 
     /**
@@ -29,13 +33,13 @@ class VariableEnumerator extends Enumerator
      * Unlike most other enumerators, the Variable Enumerator needs access to
      * the current scope variables, so we need to pass it a Context instance.
      *
-     * @param PresenterManager $presenterManager
-     * @param Context          $context
+     * @param Presenter $presenter
+     * @param Context   $context
      */
-    public function __construct(PresenterManager $presenterManager, Context $context)
+    public function __construct(Presenter $presenter, Context $context)
     {
         $this->context = $context;
-        parent::__construct($presenterManager);
+        parent::__construct($presenter);
     }
 
     /**
@@ -68,31 +72,38 @@ class VariableEnumerator extends Enumerator
     /**
      * Get scope variables.
      *
-     * @param boolean $showAll Include special variables (e.g. $_).
+     * @param bool $showAll Include special variables (e.g. $_)
      *
      * @return array
      */
     protected function getVariables($showAll)
     {
+        // self:: doesn't work inside closures in PHP 5.3 :-/
+        $specialNames = self::$specialNames;
+
         $scopeVars = $this->context->getAll();
-        uksort($scopeVars, function ($a, $b) {
-            if ($a === '_e') {
+        uksort($scopeVars, function ($a, $b) use ($specialNames) {
+            $aIndex = array_search($a, $specialNames);
+            $bIndex = array_search($b, $specialNames);
+
+            if ($aIndex !== false) {
+                if ($bIndex !== false) {
+                    return $aIndex - $bIndex;
+                }
+
                 return 1;
-            } elseif ($b === '_e') {
-                return -1;
-            } elseif ($a === '_') {
-                return 1;
-            } elseif ($b === '_') {
-                return -1;
-            } else {
-                // TODO: this should be natcasesort
-                return strcasecmp($a, $b);
             }
+
+            if ($bIndex !== false) {
+                return -1;
+            }
+
+            return strnatcasecmp($a, $b);
         });
 
         $ret = array();
         foreach ($scopeVars as $name => $val) {
-            if (!$showAll && in_array($name, self::$specialVars)) {
+            if (!$showAll && in_array($name, self::$specialNames)) {
                 continue;
             }
 
@@ -118,8 +129,8 @@ class VariableEnumerator extends Enumerator
                 $fname = '$' . $name;
                 $ret[$fname] = array(
                     'name'  => $fname,
-                    'style' => in_array($name, self::$specialVars) ? self::IS_PRIVATE : self::IS_PUBLIC,
-                    'value' => $this->presentRef($val), // TODO: add types to variable signatures
+                    'style' => in_array($name, self::$specialNames) ? self::IS_PRIVATE : self::IS_PUBLIC,
+                    'value' => $this->presentRef($val),
                 );
             }
         }

@@ -1,16 +1,15 @@
 <?php
-/**
- * Stripe Gateway
- */
 
+/**
+ * Stripe Gateway.
+ */
 namespace Omnipay\Stripe;
 
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Stripe\Message\PurchaseRequest;
-use Omnipay\Stripe\Message\RefundRequest;
+use Omnipay\Stripe\Message\CreateTokenRequest;
 
 /**
- * Stripe Gateway
+ * Stripe Gateway.
  *
  * Example:
  *
@@ -52,6 +51,9 @@ use Omnipay\Stripe\Message\RefundRequest;
  *       echo "Purchase transaction was successful!\n";
  *       $sale_id = $response->getTransactionReference();
  *       echo "Transaction reference = " . $sale_id . "\n";
+ *
+ *       $balance_transaction_id = $response->getBalanceTransactionReference();
+ *       echo "Balance Transaction reference = " . $balance_transaction_id . "\n";
  *   }
  * </code>
  *
@@ -79,17 +81,26 @@ use Omnipay\Stripe\Message\RefundRequest;
  *
  * @see \Omnipay\Common\AbstractGateway
  * @see \Omnipay\Stripe\Message\AbstractRequest
+ *
  * @link https://stripe.com/docs/api
+ *
+ * @method \Omnipay\Common\Message\RequestInterface completeAuthorize(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface completePurchase(array $options = array())
  */
 class Gateway extends AbstractGateway
 {
+    const BILLING_PLAN_FREQUENCY_DAY    = 'day';
+    const BILLING_PLAN_FREQUENCY_WEEK   = 'week';
+    const BILLING_PLAN_FREQUENCY_MONTH  = 'month';
+    const BILLING_PLAN_FREQUENCY_YEAR   = 'year';
+
     public function getName()
     {
         return 'Stripe';
     }
 
     /**
-     * Get the gateway parameters
+     * Get the gateway parameters.
      *
      * @return array
      */
@@ -101,7 +112,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Get the gateway API Key
+     * Get the gateway API Key.
      *
      * Authentication is by means of a single secret API key set as
      * the apiKey parameter when creating the gateway object.
@@ -114,7 +125,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Set the gateway API Key
+     * Set the gateway API Key.
      *
      * Authentication is by means of a single secret API key set as
      * the apiKey parameter when creating the gateway object.
@@ -132,6 +143,7 @@ class Gateway extends AbstractGateway
      * use test mode just use your test mode API key.
      *
      * @param string $value
+     *
      * @return Gateway provides a fluent interface.
      */
     public function setApiKey($value)
@@ -140,7 +152,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Authorize Request
+     * Authorize Request.
      *
      * An Authorize request is similar to a purchase request but the
      * charge issues an authorization (or pre-authorization), and no money
@@ -158,6 +170,7 @@ class Gateway extends AbstractGateway
      * card.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\AuthorizeRequest
      */
     public function authorize(array $parameters = array())
@@ -166,11 +179,12 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Capture Request
+     * Capture Request.
      *
      * Use this request to capture and process a previously created authorization.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\CaptureRequest
      */
     public function capture(array $parameters = array())
@@ -184,7 +198,7 @@ class Gateway extends AbstractGateway
      * To charge a credit card, you create a new charge object. If your API key
      * is in test mode, the supplied card won't actually be charged, though
      * everything else will occur as if in live mode. (Stripe assumes that the
-     * charge would have completed successfully). 
+     * charge would have completed successfully).
      *
      * Either a customerReference or a card is required.  If a customerReference
      * is passed in then the cardReference must be the reference of a card
@@ -197,6 +211,7 @@ class Gateway extends AbstractGateway
      * card.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\PurchaseRequest
      */
     public function purchase(array $parameters = array())
@@ -205,7 +220,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Refund Request
+     * Refund Request.
      *
      * When you create a new refund, you must specify a
      * charge to create it on.
@@ -217,6 +232,7 @@ class Gateway extends AbstractGateway
      * refunded.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\RefundRequest
      */
     public function refund(array $parameters = array())
@@ -225,9 +241,10 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Fetch Transaction Request
+     * Fetch Transaction Request.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\VoidRequest
      */
     public function void(array $parameters = array())
@@ -236,12 +253,128 @@ class Gateway extends AbstractGateway
     }
 
     /**
+     * @deprecated 2.3.3:3.0.0 duplicate of \Omnipay\Stripe\Gateway::fetchTransaction()
+     * @see \Omnipay\Stripe\Gateway::fetchTransaction()
      * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchChargeRequest
+     */
+    public function fetchCharge(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchChargeRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\FetchTransactionRequest
      */
     public function fetchTransaction(array $parameters = array())
     {
         return $this->createRequest('\Omnipay\Stripe\Message\FetchTransactionRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchBalanceTransactionRequest
+     */
+    public function fetchBalanceTransaction(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchBalanceTransactionRequest', $parameters);
+    }
+
+
+    //
+    // Transfers
+    // @link https://stripe.com/docs/api#transfers
+    //
+
+
+    /**
+     * Transfer Request.
+     *
+     * To send funds from your Stripe account to a connected account, you create
+     * a new transfer object. Your Stripe balance must be able to cover the
+     * transfer amount, or you'll receive an "Insufficient Funds" error.
+     *
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function transfer(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\CreateTransferRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function fetchTransfer(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\FetchTransferRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function updateTransfer(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\UpdateTransferRequest', $parameters);
+    }
+
+    /**
+     * List Transfers
+     *
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest|\Omnipay\Stripe\Message\Transfers\ListTransfersRequest
+     */
+    public function listTransfers(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\ListTransfersRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function reverseTransfer(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\CreateTransferReversalRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function fetchTransferReversal(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\FetchTransferReversalRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function updateTransferReversal(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\UpdateTransferReversalRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function listTransferReversals(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\Transfers\ListTransferReversalsRequest', $parameters);
     }
 
     //
@@ -250,7 +383,7 @@ class Gateway extends AbstractGateway
     //
 
     /**
-     * Create Card
+     * Create Card.
      *
      * This call can be used to create a new customer or add a card
      * to an existing customer.  If a customerReference is passed in then
@@ -260,6 +393,7 @@ class Gateway extends AbstractGateway
      * and a card token, and is essentially the same as CreateCustomerRequest
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\CreateCardRequest
      */
     public function createCard(array $parameters = array())
@@ -268,7 +402,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Update Card
+     * Update Card.
      *
      * If you need to update only some card details, like the billing
      * address or expiration date, you can do so without having to re-enter
@@ -281,7 +415,9 @@ class Gateway extends AbstractGateway
      * This requires both a customerReference and a cardReference.
      *
      * @link https://stripe.com/docs/api#update_card
+     *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\UpdateCardRequest
      */
     public function updateCard(array $parameters = array())
@@ -314,6 +450,7 @@ class Gateway extends AbstractGateway
      * dangerous but it's the best way to ensure backwards compatibility.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\DeleteCardRequest
      */
     public function deleteCard(array $parameters = array())
@@ -325,17 +462,18 @@ class Gateway extends AbstractGateway
     // Customers
     // link: https://stripe.com/docs/api#customers
     //
-    
+
     /**
-     * Create Customer
+     * Create Customer.
      *
      * Customer objects allow you to perform recurring charges and
      * track multiple charges that are associated with the same customer.
      * The API allows you to create, delete, and update your customers.
      * You can retrieve individual customers as well as a list of all of
-     * your customers. 
+     * your customers.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\CreateCustomerRequest
      */
     public function createCustomer(array $parameters = array())
@@ -344,7 +482,21 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Update Customer
+     * Fetch Customer.
+     *
+     * Fetches customer by customer reference.
+     *
+     * @param array $parameters
+     *
+     * @return \Omnipay\Stripe\Message\CreateCustomerRequest
+     */
+    public function fetchCustomer(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchCustomerRequest', $parameters);
+    }
+
+    /**
+     * Update Customer.
      *
      * This request updates the specified customer by setting the values
      * of the parameters passed. Any parameters not provided will be left
@@ -362,9 +514,10 @@ class Gateway extends AbstractGateway
      * a result of updating the customer's card.)
      *
      * This request accepts mostly the same arguments as the customer
-     * creation call. 
+     * creation call.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\CreateCustomerRequest
      */
     public function updateCustomer(array $parameters = array())
@@ -376,9 +529,10 @@ class Gateway extends AbstractGateway
      * Delete a customer.
      *
      * Permanently deletes a customer. It cannot be undone. Also immediately
-     * cancels any active subscriptions on the customer. 
+     * cancels any active subscriptions on the customer.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\DeleteCustomerRequest
      */
     public function deleteCustomer(array $parameters = array())
@@ -390,15 +544,25 @@ class Gateway extends AbstractGateway
     // Tokens
     // @link https://stripe.com/docs/api#tokens
     //
-    // This gateway does not currently have a CreateToken message.  In
-    // any case tokens are probably not what you are looking for because
-    // they are single use.  You probably want to create a Customer or
-    // Card reference instead.  This function is left here for further
-    // expansion.
-    //
 
     /**
-     * Stripe Fetch Token Request
+     * Creates a single use token that wraps the details of a credit card.
+     * This token can be used in place of a credit card associative array with any API method.
+     * These tokens can only be used once: by creating a new charge object, or attaching them to a customer.
+     *
+     * This kind of token is also useful when sharing clients between one platform and a connect account.
+     * Use this request to create a new token to make a direct charge on a customer of the platform.
+     *
+     * @param array $parameters parameters to be passed in to the TokenRequest.
+     * @return CreateTokenRequest|\Omnipay\Common\Message\AbstractRequest The create token request.
+     */
+    public function createToken(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\CreateTokenRequest', $parameters);
+    }
+
+    /**
+     * Stripe Fetch Token Request.
      *
      * Often you want to be able to charge credit cards or send payments
      * to bank accounts without having to hold sensitive card information
@@ -410,13 +574,179 @@ class Gateway extends AbstractGateway
      * You can then use a token anywhere in our API that a card or bank account
      * is accepted. Note that tokens are not meant to be stored or used more
      * than once—to store these details for use later, you should create
-     * Customer or Recipient objects. 
+     * Customer or Recipient objects.
      *
      * @param array $parameters
+     *
      * @return \Omnipay\Stripe\Message\FetchTokenRequest
      */
     public function fetchToken(array $parameters = array())
     {
         return $this->createRequest('\Omnipay\Stripe\Message\FetchTokenRequest', $parameters);
+    }
+
+    /**
+     * Create Plan
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\CreatePlanRequest
+     */
+    public function createPlan(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\CreatePlanRequest', $parameters);
+    }
+
+    /**
+     * Fetch Plan
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchPlanRequest
+     */
+    public function fetchPlan(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchPlanRequest', $parameters);
+    }
+
+    /**
+     * Delete Plan
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\DeletePlanRequest
+     */
+    public function deletePlan(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\DeletePlanRequest', $parameters);
+    }
+
+    /**
+     * List Plans
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\ListPlansRequest
+     */
+    public function listPlans(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\ListPlansRequest', $parameters);
+    }
+
+    /**
+     * Create Subscription
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\CreateSubscriptionRequest
+     */
+    public function createSubscription(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\CreateSubscriptionRequest', $parameters);
+    }
+
+    /**
+     * Fetch Subscription
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchSubscriptionRequest
+     */
+    public function fetchSubscription(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchSubscriptionRequest', $parameters);
+    }
+
+    /**
+     * Update Subscription
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\UpdateSubscriptionRequest
+     */
+    public function updateSubscription(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\UpdateSubscriptionRequest', $parameters);
+    }
+
+    /**
+     * Cancel Subscription
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\CancelSubscriptionRequest
+     */
+    public function cancelSubscription(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\CancelSubscriptionRequest', $parameters);
+    }
+
+    /**
+     * Fetch Event
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchEventRequest
+     */
+    public function fetchEvent(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchEventRequest', $parameters);
+    }
+
+    /**
+     * Fetch Invoice Lines
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchInvoiceLinesRequest
+     */
+    public function fetchInvoiceLines(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchInvoiceLinesRequest', $parameters);
+    }
+
+    /**
+     * Fetch Invoice
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchInvoiceRequest
+     */
+    public function fetchInvoice(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchInvoiceRequest', $parameters);
+    }
+
+    /**
+     * List Invoices
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\ListInvoicesRequest
+     */
+    public function listInvoices(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\ListInvoicesRequest', $parameters);
+    }
+
+    /**
+     * Create Invoice Item
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\CreateInvoiceItemRequest
+     */
+    public function createInvoiceItem(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\CreateInvoiceItemRequest', $parameters);
+    }
+
+    /**
+     * Fetch Invoice Item
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\FetchInvoiceItemRequest
+     */
+    public function fetchInvoiceItem(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\FetchInvoiceItemRequest', $parameters);
+    }
+
+    /**
+     * Delete Invoice Item
+     *
+     * @param array $parameters
+     * @return \Omnipay\Stripe\Message\DeleteInvoiceItemRequest
+     */
+    public function deleteInvoiceItem(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Stripe\Message\DeleteInvoiceItemRequest', $parameters);
     }
 }

@@ -1,12 +1,12 @@
 <?php
-/**
- * Stripe Authorize Request
- */
 
+/**
+ * Stripe Authorize Request.
+ */
 namespace Omnipay\Stripe\Message;
 
 /**
- * Stripe Authorize Request
+ * Stripe Authorize Request.
  *
  * An Authorize request is similar to a purchase request but the
  * charge issues an authorization (or pre-authorization), and no money
@@ -82,6 +82,7 @@ class AuthorizeRequest extends AbstractRequest
 
     /**
      * @param string $value
+     *
      * @return AbstractRequest provides a fluent interface.
      */
     public function setDestination($value)
@@ -90,7 +91,7 @@ class AuthorizeRequest extends AbstractRequest
     }
 
     /**
-     * @return mixedgi
+     * @return mixed
      */
     public function getSource()
     {
@@ -99,11 +100,52 @@ class AuthorizeRequest extends AbstractRequest
 
     /**
      * @param string $value
+     *
      * @return AbstractRequest provides a fluent interface.
      */
     public function setSource($value)
     {
         return $this->setParameter('source', $value);
+    }
+
+    /**
+     * Connect only
+     *
+     * @return mixed
+     */
+    public function getTransferGroup()
+    {
+        return $this->getParameter('transferGroup');
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return AbstractRequest provides a fluent interface.
+     */
+    public function setTransferGroup($value)
+    {
+        return $this->setParameter('transferGroup', $value);
+    }
+
+    /**
+     * Connect only
+     *
+     * @return mixed
+     */
+    public function getOnBehalfOf()
+    {
+        return $this->getParameter('onBehalfOf');
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return AbstractRequest provides a fluent interface.
+     */
+    public function setOnBehalfOf($value)
+    {
+        return $this->setParameter('onBehalfOf', $value);
     }
 
     /**
@@ -124,6 +166,7 @@ class AuthorizeRequest extends AbstractRequest
 
     /**
      * @param string $value
+     *
      * @return AbstractRequest provides a fluent interface.
      */
     public function setApplicationFee($value)
@@ -141,6 +184,25 @@ class AuthorizeRequest extends AbstractRequest
         $value = str_replace(array('<', '>', '"', '\''), '', $value);
 
         return $this->setParameter('statementDescriptor', $value);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReceiptEmail()
+    {
+        return $this->getParameter('receipt_email');
+    }
+
+    /**
+     * @param mixed $email
+     * @return $this
+     */
+    public function setReceiptEmail($email)
+    {
+        $this->setParameter('receipt_email', $email);
+
+        return $this;
     }
 
     public function getData()
@@ -162,23 +224,38 @@ class AuthorizeRequest extends AbstractRequest
             $data['destination'] = $this->getDestination();
         }
 
+        if ($this->getOnBehalfOf()) {
+            $data['on_behalf_of'] = $this->getOnBehalfOf();
+        }
+
         if ($this->getApplicationFee()) {
             $data['application_fee'] = $this->getApplicationFeeInteger();
         }
 
+        if ($this->getTransferGroup()) {
+            $data['transfer_group'] = $this->getTransferGroup();
+        }
+
+        if ($this->getReceiptEmail()) {
+            $data['receipt_email'] = $this->getReceiptEmail();
+        }
+
         if ($this->getSource()) {
             $data['source'] = $this->getSource();
-        } elseif ($this->getCustomerReference()) {
-            $data['customer'] = $this->getCustomerReference();
-            if ($this->getCardReference()) {
-                $data['source'] = $this->getCardReference();
-            }
         } elseif ($this->getCardReference()) {
             $data['source'] = $this->getCardReference();
+            if ($this->getCustomerReference()) {
+                $data['customer'] = $this->getCustomerReference();
+            }
         } elseif ($this->getToken()) {
             $data['source'] = $this->getToken();
+            if ($this->getCustomerReference()) {
+                $data['customer'] = $this->getCustomerReference();
+            }
         } elseif ($this->getCard()) {
             $data['source'] = $this->getCardData();
+        } elseif ($this->getCustomerReference()) {
+            $data['customer'] = $this->getCustomerReference();
         } else {
             // one of cardReference, token, or card is required
             $this->validate('source');

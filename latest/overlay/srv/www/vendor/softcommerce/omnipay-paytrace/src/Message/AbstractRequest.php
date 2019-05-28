@@ -65,12 +65,22 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         return $this->setParameter('invoiceId', $value);
     }
 
+    public function getCardReference()
+    {
+        return $this->getParameter('custid');
+    }
+
+    public function setCardReference($value)
+    {
+        return $this->setParameter('custid', $value);
+    }
+
     /**
      * @return \Omnipay\Common\CreditCard|\Omnipay\Paytrace\Check
      */
     protected function getBillingSource()
     {
-        return null;
+        return null; // @codeCoverageIgnore
     }
 
     protected function getBillingData()
@@ -83,7 +93,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
         $source = $this->getBillingSource();
         if (!$source) {
-            return $data;
+            return $data; // @codeCoverageIgnore
         }
 
         $data['BNAME'] = $source->getBillingName();

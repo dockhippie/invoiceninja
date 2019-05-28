@@ -24,6 +24,7 @@ class Gateway extends AbstractGateway
             'merchantId' => '',
             'merchantKey' => '',
             'pdtKey' => '',
+            'passphrase' => '',
             'testMode' => false,
         );
     }
@@ -46,6 +47,16 @@ class Gateway extends AbstractGateway
     public function setMerchantKey($value)
     {
         return $this->setParameter('merchantKey', $value);
+    }
+
+    public function getPassphrase()
+    {
+        return $this->getParameter('passphrase');
+    }
+
+    public function setPassphrase($value)
+    {
+        return $this->setParameter('passphrase', $value);
     }
 
     public function getPdtKey()

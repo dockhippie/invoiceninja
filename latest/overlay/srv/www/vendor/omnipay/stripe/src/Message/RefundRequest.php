@@ -1,12 +1,13 @@
 <?php
+
 /**
- * Stripe Refund Request
+ * Stripe Refund Request.
  */
 
 namespace Omnipay\Stripe\Message;
 
 /**
- * Stripe Refund Request
+ * Stripe Refund Request.
  *
  * When you create a new refund, you must specify a
  * charge to create it on.
@@ -24,7 +25,7 @@ namespace Omnipay\Stripe\Message;
  * Once entirely refunded, a charge can't be refunded again.
  * This method will return an error when called on an
  * already-refunded charge, or when trying to refund more
- * money than is left on a charge. 
+ * money than is left on a charge.
  *
  * Example -- note this example assumes that the purchase has been successful
  * and that the transaction ID returned from the purchase is held in $sale_id.
@@ -45,7 +46,7 @@ namespace Omnipay\Stripe\Message;
  * </code>
  *
  * @see PurchaseRequest
- * @see Omnipay\Stripe\Gateway
+ * @see \Omnipay\Stripe\Gateway
  * @link https://stripe.com/docs/api#create_refund
  */
 class RefundRequest extends AbstractRequest
@@ -70,11 +71,41 @@ class RefundRequest extends AbstractRequest
      * application that created the charge.
      *
      * @param bool $value Whether the application fee should be refunded
+     *
      * @return AbstractRequest
      */
     public function setRefundApplicationFee($value)
     {
         return $this->setParameter('refundApplicationFee', $value);
+    }
+
+    /**
+     * @return bool Whether the transfer should be reversed
+     */
+    public function getReverseTransfer()
+    {
+        return $this->getParameter('reverseTransfer');
+    }
+
+    /**
+     * Whether to refund the application fee associated with a charge.
+     *
+     * From the {@link https://stripe.com/docs/connect/destination-charges#issuing-refunds Stripe docs}:
+     * Charges created on the platform account can be refunded using the
+     * platform account's secret key. When refunding a charge that has a
+     * `destination[account]`, by default the destination account keeps the
+     * funds that were transferred to it, leaving the platform account to
+     * cover the negative balance from the refund. To pull back the funds
+     * from the connected account to cover the refund, set the
+     * `reverse_transfer` parameter to true when creating the refund
+     *
+     * @param bool $value Whether the transfer should be refunded
+     *
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setReverseTransfer($value)
+    {
+        return $this->setParameter('reverseTransfer', $value);
     }
 
     public function getData()
@@ -85,7 +116,11 @@ class RefundRequest extends AbstractRequest
         $data['amount'] = $this->getAmountInteger();
 
         if ($this->getRefundApplicationFee()) {
-            $data['refund_application_fee'] = "true";
+            $data['refund_application_fee'] = 'true';
+        }
+
+        if ($this->getReverseTransfer()) {
+            $data['reverse_transfer'] = 'true';
         }
 
         return $data;

@@ -32,7 +32,11 @@ class WapExpressPurchaseRequest extends BasePurchaseRequest
             "_input_charset" => $this->getInputCharset(),
         );
 
-        $data              = array_filter($data);
+        if ($this->getAppPay()) {
+            $data['app_pay'] = $this->getAppPay();
+        }
+
+        $data              = array_filter($data, 'strlen');
         $data['sign']      = $this->getParamsSignature($data);
         $data['sign_type'] = $this->getSignType();
 
@@ -68,5 +72,17 @@ class WapExpressPurchaseRequest extends BasePurchaseRequest
     public function setPayMethod($value)
     {
         $this->setParameter('pay_method', $value);
+    }
+
+
+    public function getAppPay()
+    {
+        return $this->getParameter('app_pay');
+    }
+
+
+    public function setAppPay($value)
+    {
+        $this->setParameter('app_pay', $value);
     }
 }

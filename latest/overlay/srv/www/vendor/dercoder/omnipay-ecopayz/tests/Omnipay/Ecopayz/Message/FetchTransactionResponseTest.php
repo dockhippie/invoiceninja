@@ -37,6 +37,7 @@ class FetchTransactionResponseTest extends TestCase
         $this->assertSame('OK', $response->getMessage());
         $this->assertSame('2064', $response->getTransactionId());
         $this->assertSame('1865010000008316336', $response->getTransactionReference());
+        $this->assertSame('', $response->getTransactionDescription());
         $this->assertSame('7.91', $response->getAmount());
         $this->assertSame('EUR', $response->getCurrency());
         $this->assertSame('110355', $response->getMerchantAccountNumber());

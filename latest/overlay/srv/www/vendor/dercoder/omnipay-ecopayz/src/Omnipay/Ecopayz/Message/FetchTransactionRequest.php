@@ -14,8 +14,6 @@ use Omnipay\Common\Exception\InvalidResponseException;
  */
 class FetchTransactionRequest extends AbstractRequest
 {
-    protected $endpoint = 'https://secure.ecopayz.com/services/MerchantAPI/MerchantAPIService.asmx';
-
     /**
      * Get the data for this request.
      *
@@ -114,7 +112,7 @@ class FetchTransactionRequest extends AbstractRequest
                 'SOAPAction' => 'http://www.ecocard.com/merchantAPI/QueryBySVSTransactionID'
             );
 
-            $httpRequest = $this->httpClient->createRequest('POST', $this->endpoint, $headers, $data);
+            $httpRequest = $this->httpClient->createRequest('POST', $this->getEndpoint(), $headers, $data);
             $httpResponse = $httpRequest->send();
             $xmlResponse = $httpResponse->xml()
                 ->children('http://schemas.xmlsoap.org/soap/envelope/')
@@ -142,7 +140,7 @@ class FetchTransactionRequest extends AbstractRequest
                 'SOAPAction' => 'http://www.ecocard.com/merchantAPI/QueryByCustomerTransactionID'
             );
 
-            $httpRequest = $this->httpClient->createRequest('POST', $this->endpoint, $headers, $data);
+            $httpRequest = $this->httpClient->createRequest('POST', $this->getEndpoint(), $headers, $data);
             $httpResponse = $httpRequest->send();
             $xmlResponse = $httpResponse->xml()
                 ->children('http://schemas.xmlsoap.org/soap/envelope/')

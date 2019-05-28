@@ -11,9 +11,9 @@ namespace Omnipay\Fatzebra\Message;
  * In order to refund a purchase you must submit the following details:
  *
  * * Amount (numerical)
- * * Reference (The Transaction ID of the original transaction to be refunded (XXX-P-YYYYYY)) 
+ * * Reference (The Transaction ID of the original transaction to be refunded (XXX-P-YYYYYY))
  * * Reference (String) - (The merchants reference for the refund -- in this class we
- *   create it by appending '-REFUND' to the original transaction reference.)  
+ *   create it by appending '-REFUND' to the original transaction reference.)
  *
  * Example -- note this example assumes that the purchase has been successful
  * and that the transaction ID returned from the purchase is held in $sale_id.

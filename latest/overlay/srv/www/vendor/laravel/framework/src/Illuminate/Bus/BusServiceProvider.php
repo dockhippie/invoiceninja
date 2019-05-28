@@ -1,52 +1,54 @@
-<?php namespace Illuminate\Bus;
+<?php
+
+namespace Illuminate\Bus;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Bus\Dispatcher as DispatcherContract;
+use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
+use Illuminate\Contracts\Bus\QueueingDispatcher as QueueingDispatcherContract;
 
-class BusServiceProvider extends ServiceProvider {
+class BusServiceProvider extends ServiceProvider
+{
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = true;
 
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = true;
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton(Dispatcher::class, function ($app) {
+            return new Dispatcher($app, function ($connection = null) use ($app) {
+                return $app[QueueFactoryContract::class]->connection($connection);
+            });
+        });
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		$this->app->singleton('Illuminate\Bus\Dispatcher', function($app)
-		{
-			return new Dispatcher($app, function() use ($app)
-			{
-				return $app['Illuminate\Contracts\Queue\Queue'];
-			});
-		});
+        $this->app->alias(
+            Dispatcher::class, DispatcherContract::class
+        );
 
-		$this->app->alias(
-			'Illuminate\Bus\Dispatcher', 'Illuminate\Contracts\Bus\Dispatcher'
-		);
+        $this->app->alias(
+            Dispatcher::class, QueueingDispatcherContract::class
+        );
+    }
 
-		$this->app->alias(
-			'Illuminate\Bus\Dispatcher', 'Illuminate\Contracts\Bus\QueueingDispatcher'
-		);
-	}
-
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return [
-			'Illuminate\Bus\Dispatcher',
-			'Illuminate\Contracts\Bus\Dispatcher',
-			'Illuminate\Contracts\Bus\QueueingDispatcher',
-		];
-	}
-
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            Dispatcher::class,
+            DispatcherContract::class,
+            QueueingDispatcherContract::class,
+        ];
+    }
 }

@@ -1,24 +1,41 @@
-<?php namespace Illuminate\Queue\Connectors;
+<?php
 
+namespace Illuminate\Queue\Connectors;
+
+use Pheanstalk\Connection;
 use Pheanstalk\Pheanstalk;
+use Illuminate\Support\Arr;
 use Pheanstalk\PheanstalkInterface;
 use Illuminate\Queue\BeanstalkdQueue;
 
-class BeanstalkdConnector implements ConnectorInterface {
+class BeanstalkdConnector implements ConnectorInterface
+{
+    /**
+     * Establish a queue connection.
+     *
+     * @param  array  $config
+     * @return \Illuminate\Contracts\Queue\Queue
+     */
+    public function connect(array $config)
+    {
+        $retryAfter = Arr::get($config, 'retry_after', Pheanstalk::DEFAULT_TTR);
 
-	/**
-	 * Establish a queue connection.
-	 *
-	 * @param  array  $config
-	 * @return \Illuminate\Contracts\Queue\Queue
-	 */
-	public function connect(array $config)
-	{
-		$pheanstalk = new Pheanstalk($config['host'], array_get($config, 'port', PheanstalkInterface::DEFAULT_PORT));
+        return new BeanstalkdQueue($this->pheanstalk($config), $config['queue'], $retryAfter);
+    }
 
-		return new BeanstalkdQueue(
-			$pheanstalk, $config['queue'], array_get($config, 'ttr', Pheanstalk::DEFAULT_TTR)
-		);
-	}
-
+    /**
+     * Create a Pheanstalk instance.
+     *
+     * @param  array  $config
+     * @return \Pheanstalk\Pheanstalk
+     */
+    protected function pheanstalk(array $config)
+    {
+        return new Pheanstalk(
+            $config['host'],
+            Arr::get($config, 'port', PheanstalkInterface::DEFAULT_PORT),
+            Arr::get($config, 'timeout', Connection::DEFAULT_CONNECT_TIMEOUT),
+            Arr::get($config, 'persistent', false)
+        );
+    }
 }

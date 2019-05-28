@@ -1,12 +1,12 @@
 <?php
-/**
- * Stripe Update Credit Card Request
- */
 
+/**
+ * Stripe Update Credit Card Request.
+ */
 namespace Omnipay\Stripe\Message;
 
 /**
- * Stripe Update Credit Card Request
+ * Stripe Update Credit Card Request.
  *
  * If you need to update only some card details, like the billing
  * address or expiration date, you can do so without having to re-enter
@@ -27,25 +27,17 @@ class UpdateCardRequest extends AbstractRequest
         $this->validate('cardReference');
         $this->validate('customerReference');
 
-        $data = array();
-        $data['description'] = $this->getDescription();
-
-        if ($this->getSource()) {
-            $data['source'] = $this->getSource();
-        } elseif ($this->getToken()) {
-            $data['source'] = $this->getToken();
-        } elseif ($this->getCard()) {
-            $data['source'] = $this->getCardData();
-            $data['email'] = $this->getCard()->getEmail();
+        if ($this->getCard()) {
+            return $this->getCardData();
+        } else {
+            return array();
         }
-
-        return $data;
     }
 
     public function getEndpoint()
     {
-        return $this->endpoint . '/customers/' . $this->getCustomerReference() .
-            '/cards/' . $this->getCardReference();
+        return $this->endpoint.'/customers/'.$this->getCustomerReference().
+            '/cards/'.$this->getCardReference();
     }
 
     /**
@@ -61,7 +53,7 @@ class UpdateCardRequest extends AbstractRequest
     {
         $data = array();
         $card = $this->getCard();
-        if (! empty($card)) {
+        if (!empty($card)) {
             if ($card->getExpiryMonth()) {
                 $data['exp_month'] = $card->getExpiryMonth();
             }

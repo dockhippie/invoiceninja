@@ -38,6 +38,24 @@ class CreateCardRequestTest extends TestCase
         $this->assertSame('xyz', $data['source']);
     }
 
+    public function testDataWithCardReference()
+    {
+        $this->request->setCard(null);
+        $this->request->setCardReference('xyz');
+        $data = $this->request->getData();
+
+        $this->assertSame('xyz', $data['source']);
+    }
+
+    public function testDataWithSource()
+    {
+        $this->request->setCard(null);
+        $this->request->setSource('xyz');
+        $data = $this->request->getData();
+
+        $this->assertSame('xyz', $data['source']);
+    }
+
     public function testDataWithCard()
     {
         $card = $this->getValidCard();
@@ -70,5 +88,14 @@ class CreateCardRequestTest extends TestCase
         $this->assertNull($response->getTransactionReference());
         $this->assertNull($response->getCardReference());
         $this->assertSame('You must provide an integer value for \'exp_year\'.', $response->getMessage());
+    }
+
+    public function testCardWithoutEmail()
+    {
+        $card = $this->getValidCard();
+        $this->request->setCard($card);
+        $data = $this->request->getData();
+
+        $this->assertArrayNotHasKey('email', $card);
     }
 }

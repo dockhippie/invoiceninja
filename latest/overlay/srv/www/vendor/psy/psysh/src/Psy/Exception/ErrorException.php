@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,28 +28,42 @@ class ErrorException extends \ErrorException implements Exception
      * @param int       $lineno   (default: null)
      * @param Exception $previous (default: null)
      */
-    public function __construct($message = "", $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
+    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
         $this->rawMessage = $message;
 
         if (!empty($filename) && preg_match('{Psy[/\\\\]ExecutionLoop}', $filename)) {
-            $filename = null;
+            $filename = '';
         }
 
         switch ($severity) {
-            case E_WARNING:
-            case E_CORE_WARNING:
-            case E_COMPILE_WARNING:
-            case E_USER_WARNING:
-                $type = 'warning';
-                break;
-
             case E_STRICT:
                 $type = 'Strict error';
                 break;
 
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                $type = 'Notice';
+                break;
+
+            case E_WARNING:
+            case E_CORE_WARNING:
+            case E_COMPILE_WARNING:
+            case E_USER_WARNING:
+                $type = 'Warning';
+                break;
+
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+                $type = 'Deprecated';
+                break;
+
+            case E_RECOVERABLE_ERROR:
+                $type = 'Recoverable fatal error';
+                break;
+
             default:
-                $type = 'error';
+                $type = 'Error';
                 break;
         }
 
@@ -83,6 +97,18 @@ class ErrorException extends \ErrorException implements Exception
      */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new self($errstr, 0, $errno, $errfile, $errline);
+    }
+
+    /**
+     * Create an ErrorException from an Error.
+     *
+     * @param \Error $e
+     *
+     * @return ErrorException
+     */
+    public static function fromError(\Error $e)
+    {
+        return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
     }
 }

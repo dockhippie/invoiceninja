@@ -8,15 +8,11 @@ namespace Omnipay\Eway\Message;
 /**
  * eWAY Rapid Direct Update Card Request
  *
- * Update card data stored as a token with eWAY using eWAY's Rapid 
- * Direct Connection API. 
+ * Update card data stored as a token with eWAY using eWAY's Rapid
+ * Direct Connection API.
  *
  * This requires the TokenCustomerID of the token being updated, handled
  * in OmniPay as the cardReference.
- *
- * Note that since no transaction is processed, the transaction
- * status is returned as false when a token is created. This means that
- * isSuccessful() cannot be used to check for success.
  *
  * Example:
  *
@@ -52,7 +48,9 @@ namespace Omnipay\Eway\Message;
  *   ));
  *
  *   $response = $request->send();
- *   $cardReference = $response->getCardReference();
+ *   if ($response->isSuccessful()) {
+ *       $cardReference = $response->getCardReference();
+ *   }
  * </code>
  *
  * @link https://eway.io/api-v3/#direct-connection
@@ -63,21 +61,30 @@ class RapidDirectUpdateCardRequest extends RapidDirectAbstractRequest
     public function getData()
     {
         $data = $this->getBaseData();
-        
+
         $this->validate('cardReference');
-        
+
         $data['Payment'] = array();
         $data['Payment']['TotalAmount'] = 0;
-        
+
         $data['Customer']['TokenCustomerID'] = $this->getCardReference();
-        
+
         $data['Method'] = 'UpdateTokenCustomer';
-        
+
         return $data;
     }
 
     protected function getEndpoint()
     {
         return $this->getEndpointBase().'/DirectPayment.json';
+    }
+
+    public function sendData($data)
+    {
+        $httpResponse = $this->httpClient->post($this->getEndpoint(), null, json_encode($data))
+            ->setAuth($this->getApiKey(), $this->getPassword())
+            ->send();
+
+        return $this->response = new RapidDirectCreateCardResponse($this, $httpResponse->json());
     }
 }

@@ -50,9 +50,9 @@ abstract class ContainerTestCase extends PHPUnit_Framework_TestCase
 	/**
 	 * Bind mocked expectations into the Container
 	 *
-	 * @param string  $binding
-	 * @param string  $name
-	 * @param \Closure $expectations
+	 * @param string|null $binding If null, don't save this mock as $this->$binding. Useful for one-time-use mocks.
+	 * @param string      $name
+	 * @param \Closure    $expectations
 	 *
 	 * @return Mockery
 	 */
@@ -65,7 +65,9 @@ abstract class ContainerTestCase extends PHPUnit_Framework_TestCase
 		}
 
 		// Bind into container
-		$this->$binding = $mocked;
+		if ($binding) {
+			$this->$binding = $mocked;
+		}
 
 		return $mocked;
 	}
@@ -224,15 +226,19 @@ abstract class ContainerTestCase extends PHPUnit_Framework_TestCase
 	/**
 	 * Mock a Validator instance
 	 *
+	 * @param string $field
+	 * @param string $label
+	 * @param string $binding
+	 *
 	 * @return Mockery
 	 */
-	protected function mockValidator()
+	protected function mockValidator($field = 'required', $label = 'required', $binding = 'validator')
 	{
 		$messageBag = $this->mockMessageBag(array(
-			'required' => 'The required field is required.',
+			$field => "The $label field is required.",
 		));
 
-		return $this->mock('validator', 'Illuminate\Contracts\Validation\Validator', function ($mock) use ($messageBag) {
+		return $this->mock($binding, 'Illuminate\Contracts\Validation\Validator', function ($mock) use ($messageBag) {
 			return $mock->shouldReceive('getMessageBag')->andReturn($messageBag);
 		});
 	}
@@ -249,7 +255,7 @@ abstract class ContainerTestCase extends PHPUnit_Framework_TestCase
 		$messageBag = $this->mockMessageBag($errors);
 
 		return $this->mock('session', 'Illuminate\Session\Store', function ($mock) use ($messageBag, $errors) {
-			$mock->shouldReceive('getToken')->andReturn('csrf_token');
+			$mock->shouldReceive('token')->andReturn('csrf_token');
 			if ($errors) {
 				$mock->shouldReceive('has')->with('errors')->andReturn(true);
 				$mock->shouldReceive('get')->with('errors')->andReturn($messageBag);

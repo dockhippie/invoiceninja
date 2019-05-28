@@ -1,175 +1,189 @@
-<?php namespace Illuminate\Foundation\Console;
+<?php
+
+namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\Command;
 use League\Flysystem\MountManager;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem as Flysystem;
-use Symfony\Component\Console\Input\InputOption;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 
-class VendorPublishCommand extends Command {
+class VendorPublishCommand extends Command
+{
+    /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
 
-	/**
-	 * The filesystem instance.
-	 *
-	 * @var \Illuminate\Filesystem\Filesystem
-	 */
-	protected $files;
+    /**
+     * The console command signature.
+     *
+     * @var string
+     */
+    protected $signature = 'vendor:publish {--force : Overwrite any existing files.}
+                    {--provider= : The service provider that has assets you want to publish.}
+                    {--tag=* : One or many tags that have assets you want to publish.}';
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'vendor:publish';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Publish any publishable assets from vendor packages';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = "Publish any publishable assets from vendor packages";
+    /**
+     * Create a new command instance.
+     *
+     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * @return void
+     */
+    public function __construct(Filesystem $files)
+    {
+        parent::__construct();
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @param  \Illuminate\Filesystem\Filesystem
-	 * @return void
-	 */
-	public function __construct(Filesystem $files)
-	{
-		parent::__construct();
+        $this->files = $files;
+    }
 
-		$this->files = $files;
-	}
+    /**
+     * Execute the console command.
+     *
+     * @return void
+     */
+    public function fire()
+    {
+        $tags = $this->option('tag') ?: [null];
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return void
-	 */
-	public function fire()
-	{
-		$paths = ServiceProvider::pathsToPublish(
-			$this->option('provider'), $this->option('tag')
-		);
+        foreach ((array) $tags as $tag) {
+            $this->publishTag($tag);
+        }
+    }
 
-		if (empty($paths))
-		{
-			return $this->comment("Nothing to publish.");
-		}
+    /**
+     * Publishes the assets for a tag.
+     *
+     * @param  string  $tag
+     * @return mixed
+     */
+    protected function publishTag($tag)
+    {
+        foreach ($this->pathsToPublish($tag) as $from => $to) {
+            $this->publishItem($from, $to);
+        }
 
-		foreach ($paths as $from => $to)
-		{
-			if ($this->files->isFile($from))
-			{
-				$this->publishFile($from, $to);
-			}
-			elseif ($this->files->isDirectory($from))
-			{
-				$this->publishDirectory($from, $to);
-			}
-			else
-			{
-				$this->error("Can't locate path: <{$from}>");
-			}
-		}
+        $this->info('Publishing complete.');
+    }
 
-		$this->info('Publishing Complete!');
-	}
+    /**
+     * Get all of the paths to publish.
+     *
+     * @param  string  $tag
+     * @return array
+     */
+    protected function pathsToPublish($tag)
+    {
+        return ServiceProvider::pathsToPublish(
+            $this->option('provider'), $tag
+        );
+    }
 
-	/**
-	 * Publish the file to the given path.
-	 *
-	 * @param  string  $from
-	 * @param  string  $to
-	 * @return void
-	 */
-	protected function publishFile($from, $to)
-	{
-		if ($this->files->exists($to) && ! $this->option('force'))
-		{
-			return;
-		}
+    /**
+     * Publish the given item from and to the given location.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    protected function publishItem($from, $to)
+    {
+        if ($this->files->isFile($from)) {
+            return $this->publishFile($from, $to);
+        } elseif ($this->files->isDirectory($from)) {
+            return $this->publishDirectory($from, $to);
+        }
 
-		$this->createParentDirectory(dirname($to));
+        $this->error("Can't locate path: <{$from}>");
+    }
 
-		$this->files->copy($from, $to);
+    /**
+     * Publish the file to the given path.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    protected function publishFile($from, $to)
+    {
+        if (! $this->files->exists($to) || $this->option('force')) {
+            $this->createParentDirectory(dirname($to));
 
-		$this->status($from, $to, 'File');
-	}
+            $this->files->copy($from, $to);
 
-	/**
-	 * Publish the directory to the given directory.
-	 *
-	 * @param  string  $from
-	 * @param  string  $to
-	 * @return void
-	 */
-	protected function publishDirectory($from, $to)
-	{
-		$manager = new MountManager([
-			'from' => new Flysystem(new LocalAdapter($from)),
-			'to' => new Flysystem(new LocalAdapter($to)),
-		]);
+            $this->status($from, $to, 'File');
+        }
+    }
 
-		foreach ($manager->listContents('from://', true) as $file)
-		{
-			if ($file['type'] === 'file' && ( ! $manager->has('to://'.$file['path']) || $this->option('force')))
-			{
-				$manager->put('to://'.$file['path'], $manager->read('from://'.$file['path']));
-			}
-		}
+    /**
+     * Publish the directory to the given directory.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    protected function publishDirectory($from, $to)
+    {
+        $this->moveManagedFiles(new MountManager([
+            'from' => new Flysystem(new LocalAdapter($from)),
+            'to' => new Flysystem(new LocalAdapter($to)),
+        ]));
 
-		$this->status($from, $to, 'Directory');
-	}
+        $this->status($from, $to, 'Directory');
+    }
 
-	/**
-	 * Create the directory to house the published files if needed.
-	 *
-	 * @param  string  $directory
-	 * @return void
-	 */
-	protected function createParentDirectory($directory)
-	{
-		if ( ! $this->files->isDirectory($directory))
-		{
-			$this->files->makeDirectory($directory, 0755, true);
-		}
-	}
+    /**
+     * Move all the files in the given MountManager.
+     *
+     * @param  \League\Flysystem\MountManager  $manager
+     * @return void
+     */
+    protected function moveManagedFiles($manager)
+    {
+        foreach ($manager->listContents('from://', true) as $file) {
+            if ($file['type'] === 'file' && (! $manager->has('to://'.$file['path']) || $this->option('force'))) {
+                $manager->put('to://'.$file['path'], $manager->read('from://'.$file['path']));
+            }
+        }
+    }
 
-	/**
-	 * Write a status message to the console.
-	 *
-	 * @param  string  $from
-	 * @param  string  $to
-	 * @param  string  $type
-	 * @return void
-	 */
-	protected function status($from, $to, $type)
-	{
-		$from = str_replace(base_path(), '', realpath($from));
+    /**
+     * Create the directory to house the published files if needed.
+     *
+     * @param  string  $directory
+     * @return void
+     */
+    protected function createParentDirectory($directory)
+    {
+        if (! $this->files->isDirectory($directory)) {
+            $this->files->makeDirectory($directory, 0755, true);
+        }
+    }
 
-		$to = str_replace(base_path(), '', realpath($to));
+    /**
+     * Write a status message to the console.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @param  string  $type
+     * @return void
+     */
+    protected function status($from, $to, $type)
+    {
+        $from = str_replace(base_path(), '', realpath($from));
 
-		$this->line('<info>Copied '.$type.'</info> <comment>['.$from.']</comment> <info>To</info> <comment>['.$to.']</comment>');
-	}
+        $to = str_replace(base_path(), '', realpath($to));
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions()
-	{
-		return array(
-			array('force', null, InputOption::VALUE_NONE, 'Overwrite any existing files.'),
-
-			array('provider', null, InputOption::VALUE_OPTIONAL, 'The service provider that has assets you want to publish.'),
-
-			array('tag', null, InputOption::VALUE_OPTIONAL, 'The tag that has assets you want to publish.'),
-		);
-	}
-
+        $this->line('<info>Copied '.$type.'</info> <comment>['.$from.']</comment> <info>To</info> <comment>['.$to.']</comment>');
+    }
 }

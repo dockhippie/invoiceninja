@@ -1,153 +1,235 @@
-<?php namespace Illuminate\Cache;
+<?php
 
+namespace Illuminate\Cache;
+
+use Memcached;
+use Carbon\Carbon;
+use ReflectionMethod;
 use Illuminate\Contracts\Cache\Store;
 
-class MemcachedStore extends TaggableStore implements Store {
+class MemcachedStore extends TaggableStore implements Store
+{
+    /**
+     * The Memcached instance.
+     *
+     * @var \Memcached
+     */
+    protected $memcached;
 
-	/**
-	 * The Memcached instance.
-	 *
-	 * @var \Memcached
-	 */
-	protected $memcached;
+    /**
+     * A string that should be prepended to keys.
+     *
+     * @var string
+     */
+    protected $prefix;
 
-	/**
-	 * A string that should be prepended to keys.
-	 *
-	 * @var string
-	 */
-	protected $prefix;
+    /**
+     * Indicates whether we are using Memcached version >= 3.0.0.
+     *
+     * @var bool
+     */
+    protected $onVersionThree;
 
-	/**
-	 * Create a new Memcached store.
-	 *
-	 * @param  \Memcached  $memcached
-	 * @param  string      $prefix
-	 * @return void
-	 */
-	public function __construct($memcached, $prefix = '')
-	{
-		$this->memcached = $memcached;
-		$this->prefix = strlen($prefix) > 0 ? $prefix.':' : '';
-	}
+    /**
+     * Create a new Memcached store.
+     *
+     * @param  \Memcached  $memcached
+     * @param  string      $prefix
+     * @return void
+     */
+    public function __construct($memcached, $prefix = '')
+    {
+        $this->setPrefix($prefix);
+        $this->memcached = $memcached;
 
-	/**
-	 * Retrieve an item from the cache by key.
-	 *
-	 * @param  string  $key
-	 * @return mixed
-	 */
-	public function get($key)
-	{
-		$value = $this->memcached->get($this->prefix.$key);
+        $this->onVersionThree = (new ReflectionMethod('Memcached', 'getMulti'))
+                            ->getNumberOfParameters() == 2;
+    }
 
-		if ($this->memcached->getResultCode() == 0)
-		{
-			return $value;
-		}
-	}
+    /**
+     * Retrieve an item from the cache by key.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function get($key)
+    {
+        $value = $this->memcached->get($this->prefix.$key);
 
-	/**
-	 * Store an item in the cache for a given number of minutes.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @param  int     $minutes
-	 * @return void
-	 */
-	public function put($key, $value, $minutes)
-	{
-		$this->memcached->set($this->prefix.$key, $value, $minutes * 60);
-	}
+        if ($this->memcached->getResultCode() == 0) {
+            return $value;
+        }
+    }
 
-	/**
-	 * Store an item in the cache if the key doesn't exist.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @param  int     $minutes
-	 * @return bool
-	 */
-	public function add($key, $value, $minutes)
-	{
-		return $this->memcached->add($this->prefix.$key, $value, $minutes * 60);
-	}
+    /**
+     * Retrieve multiple items from the cache by key.
+     *
+     * Items not found in the cache will have a null value.
+     *
+     * @param  array  $keys
+     * @return array
+     */
+    public function many(array $keys)
+    {
+        $prefixedKeys = array_map(function ($key) {
+            return $this->prefix.$key;
+        }, $keys);
 
-	/**
-	 * Increment the value of an item in the cache.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return int|bool
-	 */
-	public function increment($key, $value = 1)
-	{
-		return $this->memcached->increment($this->prefix.$key, $value);
-	}
+        if ($this->onVersionThree) {
+            $values = $this->memcached->getMulti($prefixedKeys, Memcached::GET_PRESERVE_ORDER);
+        } else {
+            $null = null;
 
-	/**
-	 * Decrement the value of an item in the cache.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return int|bool
-	 */
-	public function decrement($key, $value = 1)
-	{
-		return $this->memcached->decrement($this->prefix.$key, $value);
-	}
+            $values = $this->memcached->getMulti($prefixedKeys, $null, Memcached::GET_PRESERVE_ORDER);
+        }
 
-	/**
-	 * Store an item in the cache indefinitely.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return void
-	 */
-	public function forever($key, $value)
-	{
-		$this->put($key, $value, 0);
-	}
+        if ($this->memcached->getResultCode() != 0) {
+            return array_fill_keys($keys, null);
+        }
 
-	/**
-	 * Remove an item from the cache.
-	 *
-	 * @param  string  $key
-	 * @return bool
-	 */
-	public function forget($key)
-	{
-		return $this->memcached->delete($this->prefix.$key);
-	}
+        return array_combine($keys, $values);
+    }
 
-	/**
-	 * Remove all items from the cache.
-	 *
-	 * @return void
-	 */
-	public function flush()
-	{
-		$this->memcached->flush();
-	}
+    /**
+     * Store an item in the cache for a given number of minutes.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @param  float|int  $minutes
+     * @return void
+     */
+    public function put($key, $value, $minutes)
+    {
+        $this->memcached->set($this->prefix.$key, $value, $this->toTimestamp($minutes));
+    }
 
-	/**
-	 * Get the underlying Memcached connection.
-	 *
-	 * @return \Memcached
-	 */
-	public function getMemcached()
-	{
-		return $this->memcached;
-	}
+    /**
+     * Store multiple items in the cache for a given number of minutes.
+     *
+     * @param  array  $values
+     * @param  float|int  $minutes
+     * @return void
+     */
+    public function putMany(array $values, $minutes)
+    {
+        $prefixedValues = [];
 
-	/**
-	 * Get the cache key prefix.
-	 *
-	 * @return string
-	 */
-	public function getPrefix()
-	{
-		return $this->prefix;
-	}
+        foreach ($values as $key => $value) {
+            $prefixedValues[$this->prefix.$key] = $value;
+        }
 
+        $this->memcached->setMulti($prefixedValues, $this->toTimestamp($minutes));
+    }
+
+    /**
+     * Store an item in the cache if the key doesn't exist.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @param  float|int  $minutes
+     * @return bool
+     */
+    public function add($key, $value, $minutes)
+    {
+        return $this->memcached->add($this->prefix.$key, $value, $this->toTimestamp($minutes));
+    }
+
+    /**
+     * Increment the value of an item in the cache.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return int|bool
+     */
+    public function increment($key, $value = 1)
+    {
+        return $this->memcached->increment($this->prefix.$key, $value);
+    }
+
+    /**
+     * Decrement the value of an item in the cache.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return int|bool
+     */
+    public function decrement($key, $value = 1)
+    {
+        return $this->memcached->decrement($this->prefix.$key, $value);
+    }
+
+    /**
+     * Store an item in the cache indefinitely.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return void
+     */
+    public function forever($key, $value)
+    {
+        $this->put($key, $value, 0);
+    }
+
+    /**
+     * Remove an item from the cache.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function forget($key)
+    {
+        return $this->memcached->delete($this->prefix.$key);
+    }
+
+    /**
+     * Remove all items from the cache.
+     *
+     * @return bool
+     */
+    public function flush()
+    {
+        return $this->memcached->flush();
+    }
+
+    /**
+     * Get the UNIX timestamp for the given number of minutes.
+     *
+     * @param  int  $minutes
+     * @return int
+     */
+    protected function toTimestamp($minutes)
+    {
+        return $minutes > 0 ? Carbon::now()->addSeconds($minutes * 60)->getTimestamp() : 0;
+    }
+
+    /**
+     * Get the underlying Memcached connection.
+     *
+     * @return \Memcached
+     */
+    public function getMemcached()
+    {
+        return $this->memcached;
+    }
+
+    /**
+     * Get the cache key prefix.
+     *
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * Set the cache key prefix.
+     *
+     * @param  string  $prefix
+     * @return void
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = ! empty($prefix) ? $prefix.':' : '';
+    }
 }

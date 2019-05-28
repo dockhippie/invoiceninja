@@ -19,7 +19,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  */
-class MetaCommand extends Command {
+class MetaCommand extends Command
+{
 
     /**
      * The console command name.
@@ -27,7 +28,6 @@ class MetaCommand extends Command {
      * @var string
      */
     protected $name = 'ide-helper:meta';
-    protected $filename = '.phpstorm.meta.php';
 
     /**
      * The console command description.
@@ -41,22 +41,31 @@ class MetaCommand extends Command {
 
     /** @var \Illuminate\Contracts\View\Factory */
     protected $view;
-    
+
+    /** @var \Illuminate\Contracts\Config */
+    protected $config;
+
     protected $methods = [
       'new \Illuminate\Contracts\Container\Container',
-      '\Illuminate\Contracts\Container\Container::make(\'\')',
-      '\App::make(\'\')',
-      'app(\'\')',
+      '\Illuminate\Contracts\Container\Container::make(0)',
+      '\Illuminate\Contracts\Container\Container::makeWith(0)',
+      '\App::make(0)',
+      '\App::makeWith(0)',
+      '\app(0)',
+      '\resolve(0)',
     ];
 
     /**
      *
      * @param \Illuminate\Contracts\Filesystem\Filesystem $files
      * @param \Illuminate\Contracts\View\Factory $view
+     * @param \Illuminate\Contracts\Config $config
      */
-    public function __construct($files, $view) {
+    public function __construct($files, $view, $config)
+    {
         $this->files = $files;
         $this->view = $view;
+        $this->config = $config;
         parent::__construct();
     }
 
@@ -65,7 +74,7 @@ class MetaCommand extends Command {
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         $this->registerClassAutoloadExceptions();
 
@@ -75,20 +84,20 @@ class MetaCommand extends Command {
             if (in_array($abstract, ['validator', 'seeder'])) {
                 continue;
             }
-            
+
             try {
                 $concrete = $this->laravel->make($abstract);
                 if (is_object($concrete)) {
                     $bindings[$abstract] = get_class($concrete);
                 }
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 if ($this->output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                     $this->comment("Cannot make '$abstract': ".$e->getMessage());
                 }
             }
         }
 
-        $content = $this->view->make('ide-helper::meta', [
+        $content = $this->view->make('meta', [
           'bindings' => $bindings,
           'methods' => $this->methods,
         ])->render();
@@ -105,13 +114,13 @@ class MetaCommand extends Command {
 
     /**
      * Get a list of abstracts from the Laravel Application.
-     * 
+     *
      * @return array
      */
     protected function getAbstracts()
     {
         $abstracts = $this->laravel->getBindings();
-        
+
         // Return the abstract names only
         return array_keys($abstracts);
     }
@@ -133,8 +142,10 @@ class MetaCommand extends Command {
      */
     protected function getOptions()
     {
+        $filename = $this->config->get('ide-helper.meta_filename');
+
         return array(
-            array('filename', 'F', InputOption::VALUE_OPTIONAL, 'The path to the meta file', $this->filename),
+            array('filename', 'F', InputOption::VALUE_OPTIONAL, 'The path to the meta file', $filename),
         );
     }
 }

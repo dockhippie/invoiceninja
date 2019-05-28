@@ -1,99 +1,113 @@
-<?php namespace Illuminate\Foundation\Bootstrap;
+<?php
 
+namespace Illuminate\Foundation\Bootstrap;
+
+use Exception;
+use SplFileInfo;
 use Illuminate\Config\Repository;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 
-class LoadConfiguration {
+class LoadConfiguration
+{
+    /**
+     * Bootstrap the given application.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
+     */
+    public function bootstrap(Application $app)
+    {
+        $items = [];
 
-	/**
-	 * Bootstrap the given application.
-	 *
-	 * @param  \Illuminate\Contracts\Foundation\Application  $app
-	 * @return void
-	 */
-	public function bootstrap(Application $app)
-	{
-		$items = [];
+        // First we will see if we have a cache configuration file. If we do, we'll load
+        // the configuration items from that file so that it is very quick. Otherwise
+        // we will need to spin through every configuration file and load them all.
+        if (file_exists($cached = $app->getCachedConfigPath())) {
+            $items = require $cached;
 
-		// First we will see if we have a cache configuration file. If we do, we'll load
-		// the configuration items from that file so that it is very quick. Otherwise
-		// we will need to spin through every configuration file and load them all.
-		if (file_exists($cached = $app->getCachedConfigPath()))
-		{
-			$items = require $cached;
+            $loadedFromCache = true;
+        }
 
-			$loadedFromCache = true;
-		}
+        // Next we will spin through all of the configuration files in the configuration
+        // directory and load each one into the repository. This will make all of the
+        // options available to the developer for use in various parts of this app.
+        $app->instance('config', $config = new Repository($items));
 
-		$app->instance('config', $config = new Repository($items));
+        if (! isset($loadedFromCache)) {
+            $this->loadConfigurationFiles($app, $config);
+        }
 
-		// Next we will spin through all of the configuration files in the configuration
-		// directory and load each one into the repository. This will make all of the
-		// options available to the developer for use in various parts of this app.
-		if ( ! isset($loadedFromCache))
-		{
-			$this->loadConfigurationFiles($app, $config);
-		}
+        // Finally, we will set the application's environment based on the configuration
+        // values that were loaded. We will pass a callback which will be used to get
+        // the environment in a web context where an "--env" switch is not present.
+        $app->detectEnvironment(function () use ($config) {
+            return $config->get('app.env', 'production');
+        });
 
-		date_default_timezone_set($config['app.timezone']);
+        date_default_timezone_set($config->get('app.timezone', 'UTC'));
 
-		mb_internal_encoding('UTF-8');
-	}
+        mb_internal_encoding('UTF-8');
+    }
 
-	/**
-	 * Load the configuration items from all of the files.
-	 *
-	 * @param  \Illuminate\Contracts\Foundation\Application  $app
-	 * @param  \Illuminate\Contracts\Config\Repository  $config
-	 * @return void
-	 */
-	protected function loadConfigurationFiles(Application $app, RepositoryContract $config)
-	{
-		foreach ($this->getConfigurationFiles($app) as $key => $path)
-		{
-			$config->set($key, require $path);
-		}
-	}
+    /**
+     * Load the configuration items from all of the files.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  \Illuminate\Contracts\Config\Repository  $repository
+     * @return void
+     * @throws \Exception
+     */
+    protected function loadConfigurationFiles(Application $app, RepositoryContract $repository)
+    {
+        $files = $this->getConfigurationFiles($app);
 
-	/**
-	 * Get all of the configuration files for the application.
-	 *
-	 * @param  \Illuminate\Contracts\Foundation\Application  $app
-	 * @return array
-	 */
-	protected function getConfigurationFiles(Application $app)
-	{
-		$files = [];
+        if (! isset($files['app'])) {
+            throw new Exception('Unable to load the "app" configuration file.');
+        }
 
-		foreach (Finder::create()->files()->name('*.php')->in($app->configPath()) as $file)
-		{
-			$nesting = $this->getConfigurationNesting($file);
+        foreach ($files as $key => $path) {
+            $repository->set($key, require $path);
+        }
+    }
 
-			$files[$nesting.basename($file->getRealPath(), '.php')] = $file->getRealPath();
-		}
+    /**
+     * Get all of the configuration files for the application.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return array
+     */
+    protected function getConfigurationFiles(Application $app)
+    {
+        $files = [];
 
-		return $files;
-	}
+        $configPath = realpath($app->configPath());
 
-	/**
-	 * Get the configuration file nesting path.
-	 *
-	 * @param  \Symfony\Component\Finder\SplFileInfo  $file
-	 * @return string
-	 */
-	private function getConfigurationNesting(SplFileInfo $file)
-	{
-		$directory = dirname($file->getRealPath());
+        foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
+            $directory = $this->getNestedDirectory($file, $configPath);
 
-		if ($tree = trim(str_replace(config_path(), '', $directory), DIRECTORY_SEPARATOR))
-		{
-			$tree = str_replace(DIRECTORY_SEPARATOR, '.', $tree).'.';
-		}
+            $files[$directory.basename($file->getRealPath(), '.php')] = $file->getRealPath();
+        }
 
-		return $tree;
-	}
+        return $files;
+    }
 
+    /**
+     * Get the configuration file nesting path.
+     *
+     * @param  \SplFileInfo  $file
+     * @param  string  $configPath
+     * @return string
+     */
+    protected function getNestedDirectory(SplFileInfo $file, $configPath)
+    {
+        $directory = $file->getPath();
+
+        if ($nested = trim(str_replace($configPath, '', $directory), DIRECTORY_SEPARATOR)) {
+            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested).'.';
+        }
+
+        return $nested;
+    }
 }

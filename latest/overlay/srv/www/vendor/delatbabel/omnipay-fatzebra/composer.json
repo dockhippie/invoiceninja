@@ -29,7 +29,9 @@
     },
     "require-dev": {
         "omnipay/tests": "~2.0",
-        "omnipay/dummy": "dev-master"
+        "omnipay/dummy": "dev-master",
+        "apigen/apigen": "^4.1",
+        "nette/utils": "~2.3.0"
     },
     "extra": {
         "branch-alias": {

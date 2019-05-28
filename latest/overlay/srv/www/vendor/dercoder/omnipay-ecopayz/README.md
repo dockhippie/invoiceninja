@@ -3,6 +3,7 @@
 **Ecopayz driver for the Omnipay PHP payment processing library**
 
 [![Build Status](https://travis-ci.org/dercoder/omnipay-ecopayz.png?branch=master)](https://travis-ci.org/dercoder/omnipay-ecopayz)
+[![Coverage Status](https://coveralls.io/repos/dercoder/omnipay-ecopayz/badge.svg?branch=master&service=github)](https://coveralls.io/github/dercoder/omnipay-ecopayz?branch=master)
 [![Dependency Status](https://www.versioneye.com/user/projects/54366b4be993e89c45000137/badge.png)](https://www.versioneye.com/user/projects/54366b4be993e89c45000137)
 
 [![Latest Stable Version](https://poser.pugx.org/dercoder/omnipay-ecopayz/v/stable.png)](https://packagist.org/packages/dercoder/omnipay-ecopayz)

@@ -1,24 +1,47 @@
 # Recurr [![Build Status](https://travis-ci.org/simshaun/recurr.png)](https://travis-ci.org/simshaun/recurr.png) [![Latest Stable Version](https://poser.pugx.org/simshaun/recurr/v/stable.svg)](https://packagist.org/packages/simshaun/recurr) [![Total Downloads](https://poser.pugx.org/simshaun/recurr/downloads.svg)](https://packagist.org/packages/simshaun/recurr) [![Latest Unstable Version](https://poser.pugx.org/simshaun/recurr/v/unstable.svg)](https://packagist.org/packages/simshaun/recurr) [![License](https://poser.pugx.org/simshaun/recurr/license.svg)](https://packagist.org/packages/simshaun/recurr)
 
-Recurr is a PHP library for working with recurrence rules ([RRULE](http://tools.ietf.org/html/rfc2445)) and converting them in to DateTime objects.
+Recurr is a PHP library for working with recurrence rules ([RRULE](https://tools.ietf.org/html/rfc5545)) and converting them in to DateTime objects.
 
 Recurr was developed as a precursor for a calendar with recurring events, and is heavily inspired by [rrule.js](https://github.com/jkbr/rrule).
 
-Installation
+Installing Recurr
 ------------
 
-Recurr is hosted on [Packagist](https://packagist.org), meaning you can install it with [Composer](https://getcomposer.org/):
+The recommended way to install Recurr is through [Composer](http://getcomposer.org).
 
 `composer require simshaun/recurr`
 
-RRULE to DateTime objects
+Using Recurr 
 -----------
+
+### Creating RRULE rule objects ###
+
+You can create a new Rule object by passing the ([RRULE](https://tools.ietf.org/html/rfc5545)) string or an array with the rule parts, the start date, end date (optional) and timezone.
 
 ```php
 $timezone    = 'America/New_York';
 $startDate   = new \DateTime('2013-06-12 20:00:00', new \DateTimeZone($timezone));
 $endDate     = new \DateTime('2013-06-14 20:00:00', new \DateTimeZone($timezone)); // Optional
 $rule        = new \Recurr\Rule('FREQ=MONTHLY;COUNT=5', $startDate, $endDate, $timezone);
+```
+
+You can also use chained methods to build your rule programmatically and get the resulting RRULE.
+
+```php
+$rule = (new \Recurr\Rule)
+    ->setStartDate($startDate)
+    ->setTimezone($timezone)
+    ->setFreq('DAILY')
+    ->setByDay(['MO', 'TU'])
+    ->setUntil(new \DateTime('2017-12-31'))
+;
+
+echo $rule->getString(); //FREQ=DAILY;UNTIL=20171231T000000;BYDAY=MO,TU
+```
+
+### RRULE to DateTime objects ###
+
+```php
 $transformer = new \Recurr\Transformer\ArrayTransformer();
 
 print_r($transformer->transform($rule));
@@ -119,10 +142,6 @@ $transformer->setConfig($transformerConfig);
 print_r($transformer->transform($rule));
 // 2013-01-31, 2013-02-28, 2013-03-31, 2013-04-30, 2013-05-31
 ```
-
-- **Under Development**
-  Recurr is still under development and may not be 100% free of bugs.
-  Until v1.0 is reached, BC breaks may occur at any time.
 
 
 Contribute

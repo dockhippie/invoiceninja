@@ -10,47 +10,47 @@ use Omnipay\Common\AbstractGateway;
 /**
  * Fat Zebra / Paystream Gateway
  *
- * Example:
+ * ### Example
  *
  * <code>
- *   // Create a gateway for the Fat Zebra REST Gateway
- *   // (routes to GatewayFactory::create)
- *   $gateway = Omnipay::create('FatzebraGateway');
+ * // Create a gateway for the Fat Zebra REST Gateway
+ * // (routes to GatewayFactory::create)
+ * $gateway = Omnipay::create('Fatzebra_Fatzebra');
  *
- *   // Initialise the gateway
- *   $gateway->initialize(array(
- *       'username' => 'TEST',
- *       'token'    => 'TEST',
- *       'testMode' => true, // Or false when you are ready for live transactions
- *   ));
+ * // Initialise the gateway
+ * $gateway->initialize(array(
+ *     'username' => 'TEST',
+ *     'token'    => 'TEST',
+ *     'testMode' => true, // Or false when you are ready for live transactions
+ * ));
  *
- *   // Create a credit card object
- *   // This card can be used for testing.
- *   $card = new CreditCard(array(
- *               'firstName'    => 'Example',
- *               'lastName'     => 'Customer',
- *               'number'       => '4005550000000001',
- *               'expiryMonth'  => '01',
- *               'expiryYear'   => '2020',
- *               'cvv'          => '123',
- *   ));
+ * // Create a credit card object
+ * // This card can be used for testing.
+ * $card = new CreditCard(array(
+ *             'firstName'    => 'Example',
+ *             'lastName'     => 'Customer',
+ *             'number'       => '4005550000000001',
+ *             'expiryMonth'  => '01',
+ *             'expiryYear'   => '2020',
+ *             'cvv'          => '123',
+ * ));
  *
- *   // Do a purchase transaction on the gateway
- *   $transaction = $gateway->purchase(array(
- *       'amount'                   => '10.00',
- *       'transactionReference'     => 'TestPurchaseTransaction',
- *       'clientIp'                 => $_SERVER['REMOTE_ADDR'],
- *       'card'                     => $card,
- *   ));
- *   $response = $transaction->send();
- *   if ($response->isSuccessful()) {
- *       echo "Purchase transaction was successful!\n";
- *       $sale_id = $response->getTransactionReference();
- *       echo "Transaction reference = " . $sale_id . "\n";
- *   }
+ * // Do a purchase transaction on the gateway
+ * $transaction = $gateway->purchase(array(
+ *     'amount'                   => '10.00',
+ *     'transactionId'            => 'TestPurchaseTransaction123456',
+ *     'clientIp'                 => $_SERVER['REMOTE_ADDR'],
+ *     'card'                     => $card,
+ * ));
+ * $response = $transaction->send();
+ * if ($response->isSuccessful()) {
+ *     echo "Purchase transaction was successful!\n";
+ *     $sale_id = $response->getTransactionReference();
+ *     echo "Transaction reference = " . $sale_id . "\n";
+ * }
  * </code>
  *
- * Test modes:
+ * ### Test modes
  *
  * There are two test modes in the Paystream system - one is a
  * sandbox environment and the other is a test mode flag.
@@ -67,7 +67,7 @@ use Omnipay\Common\AbstractGateway;
  * Currently this class makes the assumption that if the testMode
  * flag is set then the Sandbox Environment is being used.
  *
- * Authentication:
+ * ### Authentication
  *
  * Authentication is by means of a username / token pair.  For each
  * username / token there will also be a "shared secret" which is
@@ -82,6 +82,22 @@ use Omnipay\Common\AbstractGateway;
  * * username: TEST
  * * token: TEST
  * * Shared Secret: 033bd94b11
+ *
+ * ### Quirks
+ *
+ * * All payments are in Australian Dollars (AUD). No other currency
+ *   is supported.
+ * * A unique transactionId must be provided for each transaction.
+ * * Voids are not supported, only refunds are supported.
+ * * I do not know all of the error codes, except for 05 (declined)
+ *   and 99 (bad/missing data).  They do not appear in the API documentation
+ *   anywhere.
+ *
+ * ### TODO
+ *
+ * * Fatzebra_Paystream gateway can be implemented using the same code but
+ *   a different set of endpoints.
+ * * Support a Fatzebra_DirectPost gateway for redirect based payments.
  *
  * @see \Omnipay\Common\AbstractGateway
  * @see \Omnipay\Fatzebra\Message\AbstractRestRequest
@@ -112,7 +128,7 @@ class FatzebraGateway extends AbstractGateway
     {
         return array(
             'username' => '',
-            'token' => '',
+            'token'    => '',
             'testMode' => false,
         );
     }
@@ -132,6 +148,7 @@ class FatzebraGateway extends AbstractGateway
      *
      * Note that all test usernames begin with the word TEST in upper case.
      *
+     * @param string $value
      * @return FatzebraGateway provides a fluent interface.
      */
     public function setUsername($value)
@@ -152,6 +169,7 @@ class FatzebraGateway extends AbstractGateway
     /**
      * Set the gateway token -- used as the password in HTTP Basic Auth
      *
+     * @param string $value
      * @return FatzebraGateway provides a fluent interface.
      */
     public function setToken($value)
@@ -252,7 +270,7 @@ class FatzebraGateway extends AbstractGateway
     {
         return $this->createRequest('\Omnipay\Fatzebra\Message\FetchAllPlansRequest', $parameters);
     }
-    
+
     // There is no current method to update a plan -- the gateway supports it
     // but only the plan name and description can be updated, none of the other
     // fields (such as amount).  Therefore probably the best idea is to just

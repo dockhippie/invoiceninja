@@ -1,224 +1,193 @@
-<?php namespace Illuminate\Queue;
+<?php
 
-use Closure;
-use DateTime;
-use RuntimeException;
-use SuperClosure\Serializer;
+namespace Illuminate\Queue;
+
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Queue\QueueableEntity;
-use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
-abstract class Queue {
+abstract class Queue
+{
+    use InteractsWithTime;
 
-	/**
-	 * The IoC container instance.
-	 *
-	 * @var \Illuminate\Container\Container
-	 */
-	protected $container;
+    /**
+     * The IoC container instance.
+     *
+     * @var \Illuminate\Container\Container
+     */
+    protected $container;
 
-	/**
-	 * Push a new job onto the queue.
-	 *
-	 * @param  string  $queue
-	 * @param  string  $job
-	 * @param  mixed   $data
-	 * @return mixed
-	 */
-	public function pushOn($queue, $job, $data = '')
-	{
-		return $this->push($job, $data, $queue);
-	}
+    /**
+     * The encrypter implementation.
+     *
+     * @var \Illuminate\Contracts\Encryption\Encrypter
+     */
+    protected $encrypter;
 
-	/**
-	 * Push a new job onto the queue after a delay.
-	 *
-	 * @param  string  $queue
-	 * @param  \DateTime|int  $delay
-	 * @param  string  $job
-	 * @param  mixed   $data
-	 * @return mixed
-	 */
-	public function laterOn($queue, $delay, $job, $data = '')
-	{
-		return $this->later($delay, $job, $data, $queue);
-	}
+    /**
+     * The connection name for the queue.
+     *
+     * @var string
+     */
+    protected $connectionName;
 
-	/**
-	 * Marshal a push queue request and fire the job.
-	 *
-	 * @throws \RuntimeException
-	 */
-	public function marshal()
-	{
-		throw new RuntimeException("Push queues only supported by Iron.");
-	}
+    /**
+     * Push a new job onto the queue.
+     *
+     * @param  string  $queue
+     * @param  string  $job
+     * @param  mixed   $data
+     * @return mixed
+     */
+    public function pushOn($queue, $job, $data = '')
+    {
+        return $this->push($job, $data, $queue);
+    }
 
-	/**
-	 * Push an array of jobs onto the queue.
-	 *
-	 * @param  array   $jobs
-	 * @param  mixed   $data
-	 * @param  string  $queue
-	 * @return mixed
-	 */
-	public function bulk($jobs, $data = '', $queue = null)
-	{
-		foreach ((array) $jobs as $job)
-		{
-			$this->push($job, $data, $queue);
-		}
-	}
+    /**
+     * Push a new job onto the queue after a delay.
+     *
+     * @param  string  $queue
+     * @param  \DateTime|int  $delay
+     * @param  string  $job
+     * @param  mixed   $data
+     * @return mixed
+     */
+    public function laterOn($queue, $delay, $job, $data = '')
+    {
+        return $this->later($delay, $job, $data, $queue);
+    }
 
-	/**
-	 * Create a payload string from the given job and data.
-	 *
-	 * @param  string  $job
-	 * @param  mixed   $data
-	 * @param  string  $queue
-	 * @return string
-	 */
-	protected function createPayload($job, $data = '', $queue = null)
-	{
-		if ($job instanceof Closure)
-		{
-			return json_encode($this->createClosurePayload($job, $data));
-		}
-		elseif (is_object($job))
-		{
-			return json_encode([
-				'job' => 'Illuminate\Queue\CallQueuedHandler@call',
-				'data' => ['command' => serialize(clone $job)],
-			]);
-		}
+    /**
+     * Push an array of jobs onto the queue.
+     *
+     * @param  array   $jobs
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return mixed
+     */
+    public function bulk($jobs, $data = '', $queue = null)
+    {
+        foreach ((array) $jobs as $job) {
+            $this->push($job, $data, $queue);
+        }
+    }
 
-		return json_encode($this->createPlainPayload($job, $data));
-	}
+    /**
+     * Create a payload string from the given job and data.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return string
+     *
+     * @throws \Illuminate\Queue\InvalidPayloadException
+     */
+    protected function createPayload($job, $data = '', $queue = null)
+    {
+        $payload = json_encode($this->createPayloadArray($job, $data, $queue));
 
-	/**
-	 * Create a typical, "plain" queue payload array.
-	 *
-	 * @param  string  $job
-	 * @param  mixed  $data
-	 * @return array
-	 */
-	protected function createPlainPayload($job, $data)
-	{
-		return ['job' => $job, 'data' => $this->prepareQueueableEntities($data)];
-	}
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new InvalidPayloadException(
+                'Unable to JSON encode payload. Error code: '.json_last_error()
+            );
+        }
 
-	/**
-	 * Prepare any queueable entities for storage in the queue.
-	 *
-	 * @param  mixed  $data
-	 * @return mixed
-	 */
-	protected function prepareQueueableEntities($data)
-	{
-		if ($data instanceof QueueableEntity)
-		{
-			return $this->prepareQueueableEntity($data);
-		}
+        return $payload;
+    }
 
-		if (is_array($data))
-		{
-			array_walk($data, function(&$d) { $d = $this->prepareQueueableEntity($d); });
-		}
+    /**
+     * Create a payload array from the given job and data.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return array
+     */
+    protected function createPayloadArray($job, $data = '', $queue = null)
+    {
+        return is_object($job)
+                    ? $this->createObjectPayload($job)
+                    : $this->createStringPayload($job, $data);
+    }
 
-		return $data;
-	}
+    /**
+     * Create a payload for an object-based queue handler.
+     *
+     * @param  mixed  $job
+     * @return array
+     */
+    protected function createObjectPayload($job)
+    {
+        return [
+            'displayName' => $this->getDisplayName($job),
+            'job' => 'Illuminate\Queue\CallQueuedHandler@call',
+            'maxTries' => isset($job->tries) ? $job->tries : null,
+            'timeout' => isset($job->timeout) ? $job->timeout : null,
+            'data' => [
+                'commandName' => get_class($job),
+                'command' => serialize(clone $job),
+            ],
+        ];
+    }
 
-	/**
-	 * Prepare a single queueable entity for storage on the queue.
-	 *
-	 * @param  mixed  $value
-	 * @return mixed
-	 */
-	protected function prepareQueueableEntity($value)
-	{
-		if ($value instanceof QueueableEntity)
-		{
-			return '::entity::|'.get_class($value).'|'.$value->getQueueableId();
-		}
+    /**
+     * Get the display name for the given job.
+     *
+     * @param  mixed  $job
+     * @return string
+     */
+    protected function getDisplayName($job)
+    {
+        return method_exists($job, 'displayName')
+                        ? $job->displayName() : get_class($job);
+    }
 
-		return $value;
-	}
+    /**
+     * Create a typical, string based queue payload array.
+     *
+     * @param  string  $job
+     * @param  mixed  $data
+     * @return array
+     */
+    protected function createStringPayload($job, $data)
+    {
+        return [
+            'displayName' => is_string($job) ? explode('@', $job)[0] : null,
+            'job' => $job, 'maxTries' => null,
+            'timeout' => null, 'data' => $data,
+        ];
+    }
 
-	/**
-	 * Create a payload string for the given Closure job.
-	 *
-	 * @param  \Closure  $job
-	 * @param  mixed     $data
-	 * @return string
-	 */
-	protected function createClosurePayload($job, $data)
-	{
-		$closure = $this->crypt->encrypt((new Serializer)->serialize($job));
+    /**
+     * Get the connection name for the queue.
+     *
+     * @return string
+     */
+    public function getConnectionName()
+    {
+        return $this->connectionName;
+    }
 
-		return ['job' => 'IlluminateQueueClosure', 'data' => compact('closure')];
-	}
+    /**
+     * Set the connection name for the queue.
+     *
+     * @param  string  $name
+     * @return $this
+     */
+    public function setConnectionName($name)
+    {
+        $this->connectionName = $name;
 
-	/**
-	 * Set additional meta on a payload string.
-	 *
-	 * @param  string  $payload
-	 * @param  string  $key
-	 * @param  string  $value
-	 * @return string
-	 */
-	protected function setMeta($payload, $key, $value)
-	{
-		$payload = json_decode($payload, true);
+        return $this;
+    }
 
-		return json_encode(array_set($payload, $key, $value));
-	}
-
-	/**
-	 * Calculate the number of seconds with the given delay.
-	 *
-	 * @param  \DateTime|int  $delay
-	 * @return int
-	 */
-	protected function getSeconds($delay)
-	{
-		if ($delay instanceof DateTime)
-		{
-			return max(0, $delay->getTimestamp() - $this->getTime());
-		}
-
-		return (int) $delay;
-	}
-
-	/**
-	 * Get the current UNIX timestamp.
-	 *
-	 * @return int
-	 */
-	protected function getTime()
-	{
-		return time();
-	}
-
-	/**
-	 * Set the IoC container instance.
-	 *
-	 * @param  \Illuminate\Container\Container  $container
-	 * @return void
-	 */
-	public function setContainer(Container $container)
-	{
-		$this->container = $container;
-	}
-
-	/**
-	 * Set the encrypter instance.
-	 *
-	 * @param  \Illuminate\Contracts\Encryption\Encrypter  $crypt
-	 * @return void
-	 */
-	public function setEncrypter(EncrypterContract $crypt)
-	{
-		$this->crypt = $crypt;
-	}
-
+    /**
+     * Set the IoC container instance.
+     *
+     * @param  \Illuminate\Container\Container  $container
+     * @return void
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+    }
 }

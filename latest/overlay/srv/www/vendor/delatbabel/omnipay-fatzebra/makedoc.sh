@@ -2,18 +2,33 @@
 
 #
 # Smart little documentation generator.
-# GPL/LGPL
+# MIT License
 # (c) Del 2015 http://www.babel.com.au/
+# No Rights Reserved
 #
 
 APPNAME='Omnipay Fat Zebra / Paystream Gateway Module'
 CMDFILE=apigen.cmd.$$
 DESTDIR=./documents
+SRCDIRS="src"
+VENDORDIRS="vendor/omnipay vendor/guzzle"
 
 #
-# Find apigen, either in the path or as a local phar file
+# Ensure that dependencies are installed (including codeception and phpunit)
 #
-if [ -f apigen.phar ]; then
+if [ -f composer.lock ]; then
+    composer install
+else
+    composer update
+fi
+
+#
+# Find apigen, either in the path or as a local composer or phar file
+#
+if [ -f vendor/bin/apigen ]; then
+    APIGEN="vendor/bin/apigen"
+
+elif [ -f apigen.phar ]; then
     APIGEN="php apigen.phar"
 
 else
@@ -42,6 +57,8 @@ if [ ! -z "$APIGEN" ]; then
     APIGEN="$APIGEN generate"
 fi
 
+echo "Using APIGEN = $APIGEN"
+
 #
 # Without any arguments this builds the entire system documentation,
 # making the cache file first if required.
@@ -59,7 +76,7 @@ if [ -z "$1" ]; then
     # Build the apigen/phpdoc command in a file.
     #
     if [ ! -z "$APIGEN" ]; then
-        echo "$APIGEN --php --tree --title '$APPNAME API Documentation' --destination $DESTDIR/main \\" > $CMDFILE
+        echo "$APIGEN --debug --php --tree --title '$APPNAME API Documentation' --destination $DESTDIR/main \\" > $CMDFILE
         cat dirlist.cache | while read dir; do
             echo "--source $dir \\" >> $CMDFILE
         done
@@ -91,25 +108,25 @@ if [ -z "$1" ]; then
 #
 elif [ "$1" = "makecache" ]; then
     echo "Find application source directories"
-    find src -name \*.php -print | \
+    find $SRCDIRS -name \*.php -print | \
         (
             while read file; do
                 grep -q 'class' $file && dirname $file
             done
         ) | sort -u | \
-        grep -v -E 'config|docs|migrations|phpunit|test|Test|views|web' > dirlist.app
+        grep -v -E 'config|docs|migrations|test|Test|views|web' > dirlist.app
 
     echo "Find vendor source directories"
-    find vendor -name \*.php -print | \
+    find $VENDORDIRS -name \*.php -print | \
         (
             while read file; do
                 grep -q 'class' $file && dirname $file
             done
         ) | sort -u | \
-        grep -v -E 'config|docs|migrations|phpunit|codesniffer|test|Test|views' > dirlist.vendor
+        grep -v -E 'config|docs|migrations|test|Test|views|codesniffer|phpmd|pdepend|php-parser|codeception|phpunit' > dirlist.vendor
   
     #
-    # Filter out any vendor directories for which apigen fails
+    # Filter out any directories for which apigen fails
     #
     echo "Filter source directories"
     mkdir -p $DESTDIR/tmp

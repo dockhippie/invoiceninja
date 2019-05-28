@@ -1,12 +1,12 @@
 <?php
-/**
- * Stripe Update Customer Request
- */
 
+/**
+ * Stripe Update Customer Request.
+ */
 namespace Omnipay\Stripe\Message;
 
 /**
- * Stripe Update Customer Request
+ * Stripe Update Customer Request.
  *
  * Customer objects allow you to perform recurring charges and
  * track multiple charges that are associated with the same customer.
@@ -30,12 +30,54 @@ namespace Omnipay\Stripe\Message;
  * a result of updating the customer's card.)
  *
  * This request accepts mostly the same arguments as the customer
- * creation call. 
+ * creation call.
  *
  * @link https://stripe.com/docs/api#update_customer
  */
 class UpdateCustomerRequest extends AbstractRequest
 {
+    /**
+     * Get the customer's email address.
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->getParameter('email');
+    }
+
+    /**
+     * Sets the customer's email address.
+     *
+     * @param string $value
+     * @return CreateCustomerRequest provides a fluent interface.
+     */
+    public function setEmail($value)
+    {
+        return $this->setParameter('email', $value);
+    }
+
+    /**
+     * Get the customer's source.
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        return $this->getParameter('source');
+    }
+    
+    /**
+     * Sets the customer's source.
+     *
+     * @param string $value
+     * @return CreateCustomerRequest provides a fluent interface.
+     */
+    public function setSource($value)
+    {
+        $this->setParameter('source', $value);
+    }
+
     public function getData()
     {
         $this->validate('customerReference');
@@ -48,6 +90,16 @@ class UpdateCustomerRequest extends AbstractRequest
             $this->getCard()->validate();
             $data['card'] = $this->getCardData();
             $data['email'] = $this->getCard()->getEmail();
+        } elseif ($this->getEmail()) {
+            $data['email'] = $this->getEmail();
+        }
+
+        if ($this->getMetadata()) {
+            $data['metadata'] = $this->getMetadata();
+        }
+
+        if ($this->getSource()) {
+            $data['source'] = $this->getSource();
         }
 
         return $data;
@@ -55,6 +107,6 @@ class UpdateCustomerRequest extends AbstractRequest
 
     public function getEndpoint()
     {
-        return $this->endpoint . '/customers/' . $this->getCustomerReference();
+        return $this->endpoint.'/customers/'.$this->getCustomerReference();
     }
 }

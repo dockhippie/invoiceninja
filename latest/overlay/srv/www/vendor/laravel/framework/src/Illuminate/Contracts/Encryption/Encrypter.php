@@ -1,37 +1,24 @@
-<?php namespace Illuminate\Contracts\Encryption;
+<?php
 
-interface Encrypter {
+namespace Illuminate\Contracts\Encryption;
 
-	/**
-	 * Encrypt the given value.
-	 *
-	 * @param  string  $value
-	 * @return string
-	 */
-	public function encrypt($value);
+interface Encrypter
+{
+    /**
+     * Encrypt the given value.
+     *
+     * @param  string  $value
+     * @param  bool  $serialize
+     * @return string
+     */
+    public function encrypt($value, $serialize = true);
 
-	/**
-	 * Decrypt the given value.
-	 *
-	 * @param  string  $payload
-	 * @return string
-	 */
-	public function decrypt($payload);
-
-	/**
-	 * Set the encryption mode.
-	 *
-	 * @param  string  $mode
-	 * @return void
-	 */
-	public function setMode($mode);
-
-	/**
-	 * Set the encryption cipher.
-	 *
-	 * @param  string  $cipher
-	 * @return void
-	 */
-	public function setCipher($cipher);
-
+    /**
+     * Decrypt the given value.
+     *
+     * @param  string  $payload
+     * @param  bool  $unserialize
+     * @return string
+     */
+    public function decrypt($payload, $unserialize = true);
 }

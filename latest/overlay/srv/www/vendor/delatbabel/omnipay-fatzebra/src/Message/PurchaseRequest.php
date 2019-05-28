@@ -54,7 +54,7 @@ namespace Omnipay\Fatzebra\Message;
  *   // Do a purchase transaction on the gateway
  *   $transaction = $gateway->purchase(array(
  *       'amount'                   => '10.00',
- *       'transactionReference'     => 'TestPurchaseTransaction',
+ *       'transactionId'            => 'TestPurchaseTransaction123456',
  *       'clientIp'                 => $_SERVER['REMOTE_ADDR'],
  *       'card'                     => $card,
  *   ));
@@ -75,10 +75,10 @@ class PurchaseRequest extends AbstractRestRequest
     {
         // An amount parameter is required.  All amounts are in
         // Australian dollars.
-        $this->validate('amount', 'transactionReference');
+        $this->validate('amount', 'transactionId');
         $data = array(
             'amount'        => $this->getAmount(),
-            'reference'     => $this->getTransactionReference(),
+            'reference'     => $this->getTransactionId(),
             'customer_ip'   => $this->getClientIp(),
         );
 
@@ -96,7 +96,7 @@ class PurchaseRequest extends AbstractRestRequest
             $data['card_holder'] = $card->getName();
             $data['card_number'] = $card->getNumber();
             $data['card_expiry'] = $card->getExpiryDate('m/Y');
-            $data['cvv'] = $card->getCvv();
+            $data['cvv']         = $card->getCvv();
         }
 
         return $data;

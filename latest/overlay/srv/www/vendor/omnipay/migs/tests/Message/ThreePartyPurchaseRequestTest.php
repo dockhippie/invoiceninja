@@ -18,6 +18,7 @@ class ThreePartyPurchaseRequestTest extends TestCase
                 'amount'             => '12.00',
                 'transactionId'      => 123,
                 'returnUrl'          => 'https://www.example.com/return',
+                'localeCode'         => 'en',
 
                 'merchantId'         => '123',
                 'merchantAccessCode' => '123',
@@ -27,7 +28,7 @@ class ThreePartyPurchaseRequestTest extends TestCase
 
         $data = $this->request->getData();
 
-        $this->assertSame('FC86354CC09D414EF308A6FA8CE4F9BB', $data['vpc_SecureHash']);
+        $this->assertSame('F4EAA0FB5C06BDB32ECD6DADCDF7832A119D9E5114CBEFDC228370ECC3AE304F', $data['vpc_SecureHash']);
     }
 
     public function testPurchase()
@@ -37,6 +38,7 @@ class ThreePartyPurchaseRequestTest extends TestCase
                 'amount'             => '12.00',
                 'transactionId'      => 123,
                 'returnUrl'          => 'https://www.example.com/return',
+                'localeCode'         => 'en',
 
                 'merchantId'         => '123',
                 'merchantAccessCode' => '123',

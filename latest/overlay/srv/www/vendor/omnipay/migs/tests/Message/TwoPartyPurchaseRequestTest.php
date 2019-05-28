@@ -31,7 +31,7 @@ class TwoPartyPurchaseRequestTest extends TestCase
         $this->request->setSecureHash('123');
         $hash = $this->request->calculateHash($data);
 
-        $this->assertSame('2624B4BABED7CCA98665238D75560600', $hash);
+        $this->assertSame('C3CC125E94B18DBC5C45BBB9606B969854571B4D0A0BFF1940B4A603B3E50417', $hash);
     }
 
     public function testPurchase()
@@ -58,7 +58,7 @@ class TwoPartyPurchaseRequestTest extends TestCase
         $this->assertFalse($response->isRedirect());
         $this->assertEquals('12345', $response->getTransactionReference());
         $this->assertSame('Approved', $response->getMessage());
-        $this->assertNull($response->getCode());
+        $this->assertSame('0', $response->getCode());
         $this->assertArrayHasKey('vpc_SecureHash', $response->getData());
     }
 }

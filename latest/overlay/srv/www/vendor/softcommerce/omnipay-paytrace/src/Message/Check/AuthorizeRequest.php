@@ -18,6 +18,7 @@ class AuthorizeRequest extends AbstractRequest
         $data = $this->getBaseData();
         $data['DDA'] = $check->getBankAccount();
         $data['TR'] = $check->getRoutingNumber();
+        $data['AMOUNT'] = $this->getAmount();
         if ($this->getTestMode()) {
             $data['TEST'] = 'Y';
         }

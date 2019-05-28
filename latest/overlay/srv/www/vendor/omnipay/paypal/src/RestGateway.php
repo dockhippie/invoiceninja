@@ -28,7 +28,7 @@ use Omnipay\PayPal\Message\RefundRequest;
  *
  * In order to use this for testing in sandbox mode you will need at least two sandbox
  * test accounts.  One will need to be a business account, and one will need to be a
- * personal account with credit card details.  To create these yo will need to go to
+ * personal account with credit card details.  To create these you will need to go to
  * the sandbox accounts section of the PayPal developer dashboard, here:
  * https://developer.paypal.com/webapps/developer/applications/accounts
  * On that page click "Create Account" and follow the prompts.  When you are creating the
@@ -442,6 +442,20 @@ class RestGateway extends AbstractGateway
     }
 
     /**
+     * Void an authorization.
+     *
+     * To to void a previously authorized payment.
+     *
+     * @link https://developer.paypal.com/docs/api/#void-an-authorization
+     * @param array $parameters
+     * @return \Omnipay\PayPal\Message\RestVoidRequest
+     */
+    public function void(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\PayPal\Message\RestVoidRequest', $parameters);
+    }
+
+    /**
      * Capture an authorization.
      *
      * Use this resource to capture and process a previously created authorization.
@@ -458,7 +472,20 @@ class RestGateway extends AbstractGateway
     }
 
     // TODO: Authorizations with payment_method == paypal.
-    // TODO: Look up and refund captured payments.
+
+    /**
+     * Refund a Captured Payment
+     *
+     * To refund captured payments (authorization transaction) created by a authorize request.
+     *
+     * @link https://developer.paypal.com/docs/api/#refund-a-captured-payment
+     * @param array $parameters
+     * @return \Omnipay\PayPal\Message\RestRefundCaptureRequest
+     */
+    public function refundCapture(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\PayPal\Message\RestRefundCaptureRequest', $parameters);
+    }
 
     //
     // Sale Transactions -- Get and refund completed payments (sale transactions).
@@ -576,7 +603,22 @@ class RestGateway extends AbstractGateway
     }
 
     // TODO: Retrieve a plan
-    // TODO: List plans
+
+
+    /**
+     * List billing plans.
+     *
+     * Use this call to get a list of plans in any state (CREATED, ACTIVE, etc.).
+     * The plans returned are the plans made by the merchant making the call.
+     *
+     * @link https://developer.paypal.com/docs/api/payments.billing-plans#plan_list
+     * @param array $parameters
+     * @return \Omnipay\PayPal\Message\RestListPlanRequest
+     */
+    public function listPlan(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\PayPal\Message\RestListPlanRequest', $parameters);
+    }
 
     /**
      * Create a subscription.

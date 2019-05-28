@@ -39,6 +39,10 @@ repository.
 
 ### Checkout.js
 
+Currently this package provides implementation of 2 workflows:
+
+#### 1. Authorize payment and then capture
+
 The Checkout.com integration is fairly straight forward.
 Essentially you just pass the order data and receive a payment token, which you
 can use in the checkout.js payment form. After your customer has entered his data, you'll receive
@@ -47,21 +51,41 @@ another token, which you can use to capture the payment.
 Start by following the standard Checkout.com JS guide here:
 [http://sandbox.checkout.com/js/v1/docs/Checkout.js_Manual_Sandbox.pdf](http://sandbox.checkout.com/js/v1/docs/Checkout.js_Manual_Sandbox.pdf)
 
+Full documentation of the API can be found here:
+[https://www.checkout.com/docs/sandbox/api/integration-guide/introduction](https://www.checkout.com/docs/sandbox/api/integration-guide/introduction)
+
 First Authorize:
 ```php
-$response = $gateway->authorize(['amount' => $amount, 'currency' => $currency])->send();
-if ($response->isSuccessful()) {
-    $token = $response->getToken();
+$response = $gateway->purchase(['amount' => $amount, 'currency' => $currency])->send();
+if ($response->isRedirect()) {
+    $token = $response->getTransactionReference();
 }
 ```
 
 Then Capture:
 ```php
-$response = $gateway->caputure(['amount' => $amount, 'transactionReference' => $token])->send();
+$response = $gateway->completePurchase(['amount' => $amount, 'transactionReference' => $token])->send();
 if ($response->isSuccessful()) {
     // approve Order
 }
 ```
+
+#### 2. Payment with card token (card token purchase)
+
+- In this method we first validate card data via form and js provided from Checkout.com, see [https://docs.checkout.com/getting-started/checkoutkit-js](https://docs.checkout.com/getting-started/checkoutkit-js)
+- After card is validated, we receive card token ([https://docs.checkout.com/getting-started/checkoutkit-js#example](https://docs.checkout.com/getting-started/checkoutkit-js#example))
+- in the final step we complete payment providing order data and a card token:
+```php
+$response = $gateway->cardTokenPurchase([
+    'amount' => $amount, 
+    'currency' => $currency, 
+    'email' => 'customer@email.com', 
+    'cardToken' => 'some_token', 
+    'description' => 'some nice description'
+]);
+```
+
+Note that `amount`, `currency`, `email` and `cardToken` are required fields here.
 
 ## Support
 

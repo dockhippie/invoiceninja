@@ -2,7 +2,7 @@
 /**
  * eWAY Rapid Direct Create Card Request
  */
- 
+
 namespace Omnipay\Eway\Message;
 
 /**
@@ -11,10 +11,6 @@ namespace Omnipay\Eway\Message;
  * Securely stores card details with eWAY as tokens.
  * Once submitted, a TokenCustomerID is provided which can be
  * used in future transactions instead of the card details.
- *
- * Note that since no transaction is processed, the transaction
- * status is returned as false when a token is created. This means that
- * isSuccessful() cannot be used to check for success.
  *
  * Example:
  *
@@ -49,7 +45,9 @@ namespace Omnipay\Eway\Message;
  *   ));
  *
  *   $response = $request->send();
- *   $cardReference = $response->getCardReference();
+ *   if ($response->isSuccessful()) {
+ *       $cardReference = $response->getCardReference();
+ *   }
  * </code>
  *
  * @link https://eway.io/api-v3/#direct-connection
@@ -60,17 +58,26 @@ class RapidDirectCreateCardRequest extends RapidDirectAbstractRequest
     public function getData()
     {
         $data = $this->getBaseData();
-        
+
         $data['Payment'] = array();
         $data['Payment']['TotalAmount'] = 0;
-        
+
         $data['Method'] = 'CreateTokenCustomer';
-        
+
         return $data;
     }
 
     protected function getEndpoint()
     {
         return $this->getEndpointBase().'/DirectPayment.json';
+    }
+
+    public function sendData($data)
+    {
+        $httpResponse = $this->httpClient->post($this->getEndpoint(), null, json_encode($data))
+            ->setAuth($this->getApiKey(), $this->getPassword())
+            ->send();
+
+        return $this->response = new RapidDirectCreateCardResponse($this, $httpResponse->json());
     }
 }

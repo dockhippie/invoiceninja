@@ -88,6 +88,16 @@ class FetchTransactionResponse extends AbstractResponse implements RedirectRespo
         return isset($this->data['status']) && 'expired' === $this->data['status'];
     }
 
+    public function isRefunded()
+    {
+        return isset($this->data['status']) && 'refunded' === $this->data['status'];
+    }
+
+    public function isPartialRefunded()
+    {
+        return $this->isRefunded() && isset($this->data['amountRemaining']) && $this->data['amountRemaining'] > 0;
+    }
+
     /**
      * @return mixed
      */
@@ -125,6 +135,16 @@ class FetchTransactionResponse extends AbstractResponse implements RedirectRespo
     {
         if (isset($this->data['amount'])) {
             return $this->data['amount'];
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMetadata()
+    {
+        if (isset($this->data['metadata'])) {
+            return $this->data['metadata'];
         }
     }
 }

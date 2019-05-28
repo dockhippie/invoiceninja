@@ -20,7 +20,7 @@ class ProGatewayTest extends GatewayTestCase
                 'lastName' => 'User',
                 'number' => '4111111111111111',
                 'expiryMonth' => '12',
-                'expiryYear' => '2016',
+                'expiryYear' => '2020',
                 'cvv' => '123',
             )),
         );
@@ -66,6 +66,21 @@ class ProGatewayTest extends GatewayTestCase
         $this->setMockHttpResponse('PurchaseSuccess.txt');
 
         $response = $this->gateway->purchase($this->options)->send();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals('A10A6AE7042E', $response->getTransactionReference());
+    }
+
+    public function testReferencePurchaseSuccess()
+    {
+        $options = array(
+            'amount' => '10.00',
+            'transactionReference' => 'abc123',
+        );
+
+        $this->setMockHttpResponse('PurchaseSuccess.txt');
+
+        $response = $this->gateway->purchase($options)->send();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals('A10A6AE7042E', $response->getTransactionReference());

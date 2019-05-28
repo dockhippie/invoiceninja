@@ -32,11 +32,16 @@ And run composer to update your dependencies:
 The following gateways are provided by this package:
 
 * PayPal_Express (PayPal Express Checkout)
+* PayPal_ExpressInContext (PayPal Express In-Context Checkout)
 * PayPal_Pro (PayPal Website Payments Pro)
 * PayPal_Rest (Paypal Rest API)
 
 For general usage instructions, please see the main [Omnipay](https://github.com/thephpleague/omnipay)
 repository.
+
+## Quirks
+
+The transaction reference obtained from the purchase() response can't be used to refund a purchase. The transaction reference from the completePurchase() response is the one that should be used.
 
 ## Out Of Scope
 

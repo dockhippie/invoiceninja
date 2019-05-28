@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -48,6 +48,9 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     {
         $stmts = $this->parse($code);
         $this->traverse($stmts);
+
+        // @todo a better thing to assert here?
+        $this->assertTrue(true);
     }
 
     public function getValidReferences()
@@ -59,6 +62,8 @@ class ValidConstantPassTest extends CodeCleanerTestCase
             array('NotAClass::FOO'),
             array('DateTime::ATOM'),
             array('$a = new DateTime; $a::ATOM'),
+            array('DateTime::class'),
+            array('$a = new DateTime; $a::class'),
         );
     }
 }

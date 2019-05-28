@@ -126,7 +126,7 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
                 json_encode($data)
             )->setAuth($this->getUsername(), $this->getToken());
         }
-        
+
         // Might be useful to have some debug code here.  Perhaps hook to whatever
         // logging engine is being used.
         // echo "Data == " . json_encode($data) . "\n";

@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,19 +13,19 @@ namespace Psy\Test\Formatter;
 
 use Psy\Formatter\CodeFormatter;
 
-class CodeFormatterTest extends \PHPUnit_Framework_TestCase
+class CodeFormatterTest extends \PHPUnit\Framework\TestCase
 {
     private function ignoreThisMethod($arg)
     {
-        echo "whot!";
+        echo 'whot!';
     }
 
     public function testFormat()
     {
-        $expected = <<<EOS
-  > 18|     private function ignoreThisMethod(\$arg)
+        $expected = <<<'EOS'
+  > 18|     private function ignoreThisMethod($arg)
     19|     {
-    20|         echo "whot!";
+    20|         echo 'whot!';
     21|     }
 EOS;
 
@@ -38,7 +38,7 @@ EOS;
 
     /**
      * @dataProvider filenames
-     * @expectedException Psy\Exception\RuntimeException
+     * @expectedException \Psy\Exception\RuntimeException
      */
     public function testCodeFormatterThrowsException($filename)
     {
@@ -56,6 +56,10 @@ EOS;
 
     public function filenames()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
+        }
+
         return array(array(null), array('not a file'));
     }
 }

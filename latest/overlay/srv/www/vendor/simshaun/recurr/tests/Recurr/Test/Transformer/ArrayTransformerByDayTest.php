@@ -55,7 +55,7 @@ class ArrayTransformerByDayTest extends ArrayTransformerBase
         $this->assertEquals('Europe/London', $computed[5]->getStart()->getTimezone()->getName());
         $this->assertEquals(new \DateTime('2015-04-08 15:00:00', new \DateTimeZone('UTC')), $computed[5]->getStart());
         $this->assertEquals('Europe/London', $computed[6]->getStart()->getTimezone()->getName());
-        $this->assertEquals(new \DateTime('2015-04-15 15:00:00', new \DateTimeZone('UTC')), $computed[6]->getStart());      
+        $this->assertEquals(new \DateTime('2015-04-15 15:00:00', new \DateTimeZone('UTC')), $computed[6]->getStart());
     }
 
     public function testByDayMonthly()
@@ -93,5 +93,22 @@ class ArrayTransformerByDayTest extends ArrayTransformerBase
         $this->assertEquals(new \DateTime('1997-05-19 16:00:00'), $computed[0]->getStart());
         $this->assertEquals(new \DateTime('1998-05-18 16:00:00'), $computed[1]->getStart());
         $this->assertEquals(new \DateTime('1999-05-17 16:00:00'), $computed[2]->getStart());
+    }
+
+    /**
+     * @dataProvider unsupportedNthByDayFrequencies
+     * @expectedException \Recurr\Exception\InvalidRRule
+     */
+    public function testNthByDayWithUnsupportedFrequency($frequency)
+    {
+        new Rule(
+            "FREQ=$frequency;COUNT=3;BYDAY=2MO",
+            new \DateTime('1997-05-19 16:00:00')
+        );
+    }
+
+    public function unsupportedNthByDayFrequencies()
+    {
+        return array(array('DAILY'), array('HOURLY'), array('MINUTELY'), array('SECONDLY'));
     }
 }

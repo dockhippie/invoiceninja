@@ -39,7 +39,7 @@ class TextTransformer
 
         $until = $rule->getUntil();
         $count = $rule->getCount();
-        if ($until instanceof \DateTime) {
+        if ($until instanceof \DateTimeInterface) {
             $dateFormatted = $this->translator->trans('day_date', array('date' => $until->format('U')));
             $this->addFragment($this->translator->trans('until %date%', array('date' => $dateFormatted)));
         } else if (!empty($count)) {
@@ -90,14 +90,25 @@ class TextTransformer
     {
         $interval = $rule->getInterval();
         $byMonth = $rule->getByMonth();
+        $byMonthDay = $rule->getByMonthDay();
+        $byDay = $rule->getByDay();
+        $byYearDay = $rule->getByYearDay();
+        $byWeekNum = $rule->getByWeekNumber();
 
-        if (!empty($byMonth) && $interval == 1) {
+        if (!empty($byMonth) && count($byMonth) > 1 && $interval == 1) {
             $this->addFragment($this->translator->trans('every_month_list'));
         } else {
             $this->addFragment($this->translator->trans($this->isPlural($interval) ? 'every %count% years' : 'every year', array('count' => $interval)));
         }
 
-        if (!empty($byMonth)) {
+        $hasNoOrOneByMonth = is_null($byMonth) || count($byMonth) <= 1;
+        if ($hasNoOrOneByMonth && empty($byMonthDay) && empty($byDay) && empty($byYearDay) && empty($byWeekNum)) {
+            $this->addFragment($this->translator->trans('on'));
+            $monthNum = (is_array($byMonth) && count($byMonth)) ? $byMonth[0] : $rule->getStartDate()->format('n');
+            $this->addFragment(
+                $this->translator->trans('day_month', array('month' => $monthNum, 'day' => $rule->getStartDate()->format('d')))
+            );
+        } elseif (!empty($byMonth)) {
             if ($interval != 1) {
                 $this->addFragment($this->translator->trans('in_month'));
             }
@@ -105,8 +116,6 @@ class TextTransformer
             $this->addByMonth($rule);
         }
 
-        $byMonthDay = $rule->getByMonthDay();
-        $byDay      = $rule->getByDay();
         if (!empty($byMonthDay)) {
             $this->addByMonthDay($rule);
             $this->addFragment($this->translator->trans('of_the_month'));
@@ -114,18 +123,20 @@ class TextTransformer
             $this->addByDay($rule);
         }
 
-        $byYearDay = $rule->getByYearDay();
         if (!empty($byYearDay)) {
             $this->addFragment($this->translator->trans('on the'));
             $this->addFragment($this->getByYearDayAsText($byYearDay));
             $this->addFragment($this->translator->trans('day'));
         }
 
-        $byWeekNum = $rule->getByWeekNumber();
         if (!empty($byWeekNum)) {
             $this->addFragment($this->translator->trans('in_week'));
             $this->addFragment($this->translator->trans($this->isPlural(count($byWeekNum)) ? 'weeks' : 'week'));
             $this->addFragment($this->getByWeekNumberAsText($byWeekNum));
+        }
+
+        if (empty($byMonthDay) && empty($byYearDay) && empty($byDay) && !empty($byWeekNum)) {
+            $this->addDayOfWeek($rule);
         }
     }
 
@@ -161,16 +172,20 @@ class TextTransformer
     {
         $interval = $rule->getInterval();
         $byMonth = $rule->getByMonth();
+        $byMonthDay = $rule->getByMonthDay();
+        $byDay = $rule->getByDay();
 
         $this->addFragment($this->translator->trans($this->isPlural($interval) ? 'every %count% weeks' : 'every week', array('count' => $interval)));
+
+        if (empty($byMonthDay) && empty($byDay)) {
+            $this->addDayOfWeek($rule);
+        }
 
         if (!empty($byMonth)) {
             $this->addFragment($this->translator->trans('in_month'));
             $this->addByMonth($rule);
         }
 
-        $byMonthDay = $rule->getByMonthDay();
-        $byDay      = $rule->getByDay();
         if (!empty($byMonthDay)) {
             $this->addByMonthDay($rule);
             $this->addFragment($this->translator->trans('of_the_month'));
@@ -234,6 +249,13 @@ class TextTransformer
 
         $this->addFragment($this->translator->trans('on'));
         $this->addFragment($this->getByDayAsText($byDay));
+    }
+
+    protected function addDayOfWeek(Rule $rule)
+    {
+        $this->addFragment($this->translator->trans('on'));
+        $dayNames = $this->translator->trans('day_names');
+        $this->addFragment($dayNames[$rule->getStartDate()->format('w')]);
     }
 
     public function getByMonthAsText($byMonth)

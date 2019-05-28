@@ -46,15 +46,15 @@ class IlluminateRouteCollector extends DataCollector implements Renderable
     protected function getRouteInformation($route)
     {
         if (!is_a($route, 'Illuminate\Routing\Route')) {
-            return array();
+            return [];
         }
         $uri = head($route->methods()) . ' ' . $route->uri();
 		$action = $route->getAction();
 
-        $result = array(
+        $result = [
     	   'uri' => $uri ?: '-',
-        );
-        
+        ];
+
         $result = array_merge($result, $action);
 
 
@@ -73,82 +73,25 @@ class IlluminateRouteCollector extends DataCollector implements Renderable
             $filename = ltrim(str_replace(base_path(), '', $reflector->getFileName()), '/');
             $result['file'] = $filename . ':' . $reflector->getStartLine() . '-' . $reflector->getEndLine();
         }
-		
-		if ($before = $this->getBeforeFilters($route)) {
-		    $result['before'] = $before;
+
+		if ($middleware = $this->getMiddleware($route)) {
+		    $result['middleware'] = $middleware;
 		}
-		
-		if ($after = $this->getAfterFilters($route)) {
-		    $result['after'] = $after;
-		}
-		
+
+
+
         return $result;
     }
 
     /**
-     * Get before filters
+     * Get middleware
      *
      * @param  \Illuminate\Routing\Route $route
      * @return string
      */
-    protected function getBeforeFilters($route)
+    protected function getMiddleware($route)
     {
-        $before = array_keys($route->beforeFilters());
-
-        $before = array_unique(array_merge($before, $this->getPatternFilters($route)));
-
-        return implode(', ', $before);
-    }
-
-    /*
-     * The following is copied/modified from the RoutesCommand from Laravel, by Taylor Otwell
-     * https://github.com/laravel/framework/blob/4.1/src/Illuminate/Foundation/Console/RoutesCommand.php
-     *
-     */
-
-    /**
-     * Get all of the pattern filters matching the route.
-     *
-     * @param  \Illuminate\Routing\Route $route
-     * @return array
-     */
-    protected function getPatternFilters($route)
-    {
-        $patterns = array();
-
-        foreach ($route->methods() as $method) {
-            // For each method supported by the route we will need to gather up the patterned
-            // filters for that method. We will then merge these in with the other filters
-            // we have already gathered up then return them back out to these consumers.
-            $inner = $this->getMethodPatterns($route->uri(), $method);
-
-            $patterns = array_merge($patterns, array_keys($inner));
-        }
-
-        return $patterns;
-    }
-
-    /**
-     * Get the pattern filters for a given URI and method.
-     *
-     * @param  string $uri
-     * @param  string $method
-     * @return array
-     */
-    protected function getMethodPatterns($uri, $method)
-    {
-        return $this->router->findPatternFilters(Request::create($uri, $method));
-    }
-
-    /**
-     * Get after filters
-     *
-     * @param  Route $route
-     * @return string
-     */
-    protected function getAfterFilters($route)
-    {
-        return implode(', ', array_keys($route->afterFilters()));
+        return implode(', ', $route->middleware());
     }
 
     /**
@@ -164,21 +107,21 @@ class IlluminateRouteCollector extends DataCollector implements Renderable
      */
     public function getWidgets()
     {
-        $widgets = array(
-            "route" => array(
+        $widgets = [
+            "route" => [
                 "icon" => "share",
                 "widget" => "PhpDebugBar.Widgets.VariableListWidget",
                 "map" => "route",
                 "default" => "{}"
-            )
-        );
+            ]
+        ];
         if (Config::get('debugbar.options.route.label', true)) {
-            $widgets['currentroute'] = array(
+            $widgets['currentroute'] = [
                 "icon" => "share",
                 "tooltip" => "Route",
                 "map" => "route.uri",
                 "default" => ""
-            );
+            ];
         }
         return $widgets;
     }

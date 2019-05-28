@@ -13,8 +13,6 @@ use Omnipay\Common\Exception\InvalidResponseException;
  */
 class PayoutRequest extends AbstractRequest
 {
-    protected $endpoint = 'https://secure.ecopayz.com/services/MerchantAPI/MerchantAPIService.asmx';
-
     /**
      * Get the Client Account Number
      *
@@ -161,7 +159,7 @@ class PayoutRequest extends AbstractRequest
             'SOAPAction' => 'http://www.ecocard.com/merchantAPI/Payout'
         );
 
-        $httpRequest = $this->httpClient->createRequest('POST', $this->endpoint, $headers, $data);
+        $httpRequest = $this->httpClient->createRequest('POST', $this->getEndpoint(), $headers, $data);
         $httpResponse = $httpRequest->send();
         $xmlResponse = $httpResponse->xml()
             ->children('http://schemas.xmlsoap.org/soap/envelope/')

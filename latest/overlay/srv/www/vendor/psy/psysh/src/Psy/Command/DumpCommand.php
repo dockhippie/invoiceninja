@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,9 +12,8 @@
 namespace Psy\Command;
 
 use Psy\Exception\RuntimeException;
-use Psy\Presenter\Presenter;
-use Psy\Presenter\PresenterManager;
-use Psy\Presenter\PresenterManagerAware;
+use Psy\VarDumper\Presenter;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,18 +24,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * This is like var_dump but *way* awesomer.
  */
-class DumpCommand extends ReflectingCommand implements PresenterManagerAware
+class DumpCommand extends ReflectingCommand implements PresenterAware
 {
-    private $presenterManager;
+    private $presenter;
 
     /**
-     * PresenterManagerAware interface.
+     * PresenterAware interface.
      *
-     * @param PresenterManager $manager
+     * @param Presenter $presenter
      */
-    public function setPresenterManager(PresenterManager $manager)
+    public function setPresenter(Presenter $presenter)
     {
-        $this->presenterManager = $manager;
+        $this->presenter = $presenter;
     }
 
     /**
@@ -53,14 +52,14 @@ class DumpCommand extends ReflectingCommand implements PresenterManagerAware
             ))
             ->setDescription('Dump an object or primitive.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Dump an object or primitive.
 
 This is like var_dump but <strong>way</strong> awesomer.
 
 e.g.
-<return>>>> dump \$_</return>
-<return>>>> dump \$someVar</return>
+<return>>>> dump $_</return>
+<return>>>> dump $someVar</return>
 HELP
             );
     }
@@ -72,13 +71,17 @@ HELP
     {
         $depth  = $input->getOption('depth');
         $target = $this->resolveTarget($input->getArgument('target'));
-        $output->page($this->presenterManager->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
+        $output->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
+
+        if (is_object($target)) {
+            $this->setCommandScopeVariables(new \ReflectionObject($target));
+        }
     }
 
     /**
      * Resolve dump target name.
      *
-     * @throws RuntimeException if target name does not exist in the current scope.
+     * @throws RuntimeException if target name does not exist in the current scope
      *
      * @param string $target
      *
@@ -87,7 +90,13 @@ HELP
     protected function resolveTarget($target)
     {
         $matches = array();
-        if (preg_match(self::INSTANCE, $target, $matches)) {
+        if (preg_match(self::SUPERGLOBAL, $target, $matches)) {
+            if (!array_key_exists($matches[1], $GLOBALS)) {
+                throw new RuntimeException('Unknown target: ' . $target);
+            }
+
+            return $GLOBALS[$matches[1]];
+        } elseif (preg_match(self::INSTANCE, $target, $matches)) {
             return $this->getScopeVariable($matches[1]);
         } else {
             throw new RuntimeException('Unknown target: ' . $target);

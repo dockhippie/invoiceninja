@@ -229,6 +229,8 @@ abstract class FormerTests extends ContainerTestCase
 
 			if (!is_null($value)) {
 				$html[] = $key.'="'.$value.'"';
+			} else {
+				$html[] = $key;
 			}
 		}
 
@@ -321,8 +323,28 @@ abstract class FormerTests extends ContainerTestCase
 		@$this->assertTag(
 			$matcher,
 			$input,
-			"Failed asserting that the HTML matches the provided format :\n\t"
+			"Failed asserting that the HTML matches the provided input :\n\t"
 			.$input."\n\t"
 			.json_encode($matcher));
 	}
+
+    /**
+     * Assert that a piece of HTML matches an array
+     *
+     * @param  array  $matcher
+     * @param  string $input
+     *
+     * @return boolean
+     */
+    public function assertNotHTML($matcher, $input)
+    {
+        // assertTag is deprecated, so we silence the E_DEPRECATED notice to make tests pass for now.
+        @$this->assertNotTag(
+            $matcher,
+            $input,
+            "Failed asserting that the HTML does NOT match the provided input :\n\t"
+            .$input."\n\t"
+            .json_encode($matcher));
+    }
+
 }

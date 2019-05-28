@@ -31,7 +31,7 @@ class RestGatewayTest extends GatewayTestCase
                 'lastName' => 'User',
                 'number' => '4111111111111111',
                 'expiryMonth' => '12',
-                'expiryYear' => '2016',
+                'expiryYear' => '2017',
                 'cvv' => '123',
             )),
         );
@@ -154,6 +154,27 @@ class RestGatewayTest extends GatewayTestCase
         $this->assertEmpty($data);
     }
 
+    public function testListPlan()
+    {
+        $request = $this->gateway->listPlan(array(
+            'page'         => 0,
+            'status'       => 'ACTIVE',
+            'pageSize'    => 10, //number of plans in a single page
+            'totalRequired'     => 'yes'
+        ));
+
+        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestListPlanRequest', $request);
+        $this->assertSame(0, $request->getPage());
+        $this->assertSame('ACTIVE', $request->getStatus());
+        $this->assertSame(10, $request->getPageSize());
+        $this->assertSame('yes', $request->getTotalRequired());
+
+        $endPoint = $request->getEndpoint();
+        $this->assertSame('https://api.paypal.com/v1/payments/billing-plans', $endPoint);
+        $data = $request->getData();
+        $this->assertNotEmpty($data);
+    }
+
     public function testFetchPurchase()
     {
         $request = $this->gateway->fetchPurchase(array('transactionReference' => 'abc123'));
@@ -244,5 +265,39 @@ class RestGatewayTest extends GatewayTestCase
         $response = $this->gateway->reactivateSubscription($this->subscription_options)->send();
         $this->assertTrue($response->isSuccessful());
         $this->assertNull($response->getMessage());
+    }
+
+    public function testRefundCapture()
+    {
+        $request = $this->gateway->refundCapture(array(
+            'transactionReference' => 'abc123'
+        ));
+
+        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestRefundCaptureRequest', $request);
+        $this->assertSame('abc123', $request->getTransactionReference());
+        $endPoint = $request->getEndpoint();
+        $this->assertSame('https://api.paypal.com/v1/payments/capture/abc123/refund', $endPoint);
+        
+        $request->setAmount('15.99');
+        $request->setCurrency('BRL');
+        $request->setDescription('Test Description');
+        $data = $request->getData();
+        // we're expecting an empty object here
+        $json = json_encode($data);
+        $this->assertEquals('{"amount":{"currency":"BRL","total":"15.99"},"description":"Test Description"}', $json);
+    }
+
+    public function testVoid()
+    {
+        $request = $this->gateway->void(array(
+            'transactionReference' => 'abc123'
+        ));
+
+        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestVoidRequest', $request);
+        $this->assertSame('abc123', $request->getTransactionReference());
+        $endPoint = $request->getEndpoint();
+        $this->assertSame('https://api.paypal.com/v1/payments/authorization/abc123/void', $endPoint);
+        $data = $request->getData();
+        $this->assertEmpty($data);
     }
 }

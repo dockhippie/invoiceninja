@@ -31,37 +31,37 @@ class RestResponse extends AbstractResponse
         if ($this->getCode() >= 400) {
             return false;
         }
-        
+
         if (! empty($this->data['errors'])) {
             return false;
         }
-        
-        if (! empty($this->data['response']['successful'])) {
+
+        if (isset($this->data['response']['successful'])) {
             return $this->data['response']['successful'];
         }
-        
+
         return true;
     }
 
     public function getTransactionReference()
     {
         // This is usually correct for payments, authorizations, etc
-        if (!empty($this->data['response']) && !empty($this->data['response']['id'])) {
+        if (! empty($this->data['response']) && ! empty($this->data['response']['id'])) {
             return $this->data['response']['id'];
         }
 
         // This is correct for tokenize
-        if (!empty($this->data['response']) && !empty($this->data['response']['token'])) {
+        if (! empty($this->data['response']) && ! empty($this->data['response']['token'])) {
             return $this->data['response']['token'];
         }
 
         // This is correct for create customer
-        if (!empty($this->data['response']) && !empty($this->data['response']['card_token'])) {
+        if (! empty($this->data['response']) && ! empty($this->data['response']['card_token'])) {
             return $this->data['response']['card_token'];
         }
 
         // This is correct for create plan
-        if (!empty($this->data['response']) && !empty($this->data['response']['plan'])) {
+        if (! empty($this->data['response']) && ! empty($this->data['response']['plan'])) {
             return $this->data['response']['plan'];
         }
 
@@ -136,19 +136,23 @@ class RestResponse extends AbstractResponse
 
     public function getMessage()
     {
-        if (isset($this->data['errors'])) {
+        if (isset($this->data['errors']) && count($this->data['errors']) > 0) {
             return implode(', ', $this->data['errors']);
         }
 
         if (isset($this->data['response']['message'])) {
             return $this->data['response']['message'];
         }
-        
+
         return null;
     }
 
     public function getCode()
     {
+        if (isset($this->data['response']['response_code'])) {
+            return $this->data['response']['response_code'];
+        }
+
         return $this->statusCode;
     }
 }
