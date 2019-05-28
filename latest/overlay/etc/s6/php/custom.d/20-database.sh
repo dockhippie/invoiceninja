@@ -5,13 +5,14 @@ case "${INVOICENINJA_DB_TYPE}" in
     if [ -z "${INVOICENINJA_DB_DATABASE}" ]
     then
       echo >&2 "Error: You have to provide INVOICENINJA_DB_DATABASE environment variable"
-      s6-svc -t /etc/s6
+      /bin/s6-svscanctl -t /etc/s6
       exit 1
     fi
 
     if [ ! -f "${INVOICENINJA_DB_DATABASE}" ]
     then
-      /usr/bin/gosu \
+    	echo "> creating database"
+      su-exec \
         caddy \
         /usr/bin/sqlite3 \
         ${INVOICENINJA_DB_DATABASE} \
@@ -23,14 +24,14 @@ case "${INVOICENINJA_DB_TYPE}" in
     if [ -z "${INVOICENINJA_DB_USERNAME}" ]
     then
       echo >&2 "Error: You have to provide INVOICENINJA_DB_USERNAME environment variable"
-      s6-svc -t /etc/s6
+      /bin/s6-svscanctl -t /etc/s6
       exit 1
     fi
 
     if [ -z "${INVOICENINJA_DB_PASSWORD}" ]
     then
       echo >&2 "Error: You have to provide INVOICENINJA_DB_PASSWORD environment variable"
-      s6-svc -t /etc/s6
+      /bin/s6-svscanctl -t /etc/s6
       exit 1
     fi
     ;;
@@ -39,59 +40,15 @@ case "${INVOICENINJA_DB_TYPE}" in
     if [ -z "${INVOICENINJA_DB_USERNAME}" ]
     then
       echo >&2 "Error: You have to provide INVOICENINJA_DB_USERNAME environment variable"
-      s6-svc -t /etc/s6
+      /bin/s6-svscanctl -t /etc/s6
       exit 1
     fi
 
     if [ -z "${INVOICENINJA_DB_PASSWORD}" ]
     then
       echo >&2 "Error: You have to provide INVOICENINJA_DB_PASSWORD environment variable"
-      s6-svc -t /etc/s6
+      /bin/s6-svscanctl -t /etc/s6
       exit 1
     fi
     ;;
 esac
-
-if [ -z "${INVOICENINJA_APP_KEY}" ]
-then
-  echo >&2 "Error: You have to provide INVOICENINJA_APP_KEY environment variable"
-  /bin/s6-svscanctl -t /etc/s6
-  exit 1
-fi
-
-if [ -z "${INVOICENINJA_APP_URL}" ]
-then
-  echo >&2 "Error: You have to provide INVOICENINJA_APP_URL environment variable"
-  /bin/s6-svscanctl -t /etc/s6
-  exit 1
-fi
-
-/usr/bin/templater -d -p invoiceninja \
-  -o /srv/www/.env \
-  /etc/templates/env.tmpl
-
-pushd /srv/www > /dev/null
-  /usr/bin/gosu \
-    caddy \
-    /usr/bin/php \
-    artisan \
-    clear-compiled -n -q
-
-  /usr/bin/gosu \
-    caddy \
-    /usr/bin/php \
-    artisan \
-    optimize -n -q
-
-  /usr/bin/gosu \
-    caddy \
-    /usr/bin/php \
-    artisan \
-    migrate:install -n -q
-
-  /usr/bin/gosu \
-    caddy \
-    /usr/bin/php \
-    artisan \
-    migrate -n -q --force --seed
-popd > /dev/null

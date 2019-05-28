@@ -1,3 +1,0 @@
-0 8 * * * /usr/bin/php -f /srv/www/artisan ninja:send-invoices > /dev/null 2>&1
-0 8 * * * /usr/bin/php -f /srv/www/artisan ninja:send-reminders > /dev/null 2>&1
-0 8 * * * /usr/bin/php -f /srv/www/artisan ninja:send-renewals > /dev/null 2>&1

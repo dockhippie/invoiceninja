@@ -1,4 +1,5 @@
 <?php
+
 return [
   'fetch' => PDO::FETCH_CLASS,
 
@@ -7,7 +8,7 @@ return [
   'connections' => [
     'sqlite' => [
       'driver' => 'sqlite',
-      'database' => env('DB_DATABASE', '/storage/database.sqlite3'),
+      'database' => env('DB_DATABASE', '/var/lib/invoiceninja/database.sqlite3'),
       'prefix' => env('DB_PREFIX', ''),
     ],
     'mysql' => [
@@ -39,9 +40,9 @@ return [
     'cluster' => false,
 
     'default' => [
-      'host' => '127.0.0.1',
-      'port' => 6379,
-      'database' => 0,
+      'host' => env('REDIS_HOST', 'redis'),
+      'port' => env('REDIS_PORT', 6379),
+      'database' => env('REDIS_DATABASE', 0),
     ],
   ],
 ];
