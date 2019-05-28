@@ -15,11 +15,11 @@ CMD ["/bin/s6-svscan", "/etc/s6"]
 
 RUN apk update && \
   apk upgrade && \
-  apk add sqlite && \
+  apk add sqlite unifont ttf-inconsolata php7-gmp php7-xmlreader && \
   rm -rf /var/cache/apk/*
 
 ENV PHP_COMPOSER_INSTALL false
-ENV INVOICENINJA_VERSION 2.5.0.3
+ENV INVOICENINJA_VERSION 4.5.13
 ENV INVOICENINJA_TARBALL https://github.com/invoiceninja/invoiceninja/archive/v${INVOICENINJA_VERSION}.tar.gz
 
 RUN curl -sLo - ${INVOICENINJA_TARBALL} | tar -xzf - --strip 1 -C /srv/www && \

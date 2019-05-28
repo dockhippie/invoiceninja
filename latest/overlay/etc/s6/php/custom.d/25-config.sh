@@ -13,15 +13,3 @@ then
   /bin/s6-svscanctl -t /etc/s6
   exit 1
 fi
-
-echo "> writing env config"
-/usr/bin/gomplate -V \
-  -o /srv/www/.env \
-  -f /etc/templates/env.tmpl
-
-if [[ $? -ne 0 ]]
-then
-  echo "> writing config failed!"
-  /bin/s6-svscanctl -t /etc/s6
-  exit 1
-fi
