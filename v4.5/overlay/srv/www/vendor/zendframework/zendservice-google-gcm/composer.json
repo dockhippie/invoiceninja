@@ -1,0 +1,32 @@
+{
+    "name": "zendframework/zendservice-google-gcm",
+    "description": "OOP wrapper for Google Cloud Messaging",
+    "type": "library",
+    "keywords": [
+        "zf2",
+        "gcm",
+        "push",
+        "notification",
+        "google"
+    ],
+    "homepage": "https://github.com/zendframework/zendservice-google-gcm",
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "ZendService\\Google\\": "library/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendServiceTest\\Google\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-http": "^2.0",
+        "zendframework/zend-json": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": "^4.8"
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "name": "agmscode/omnipay-agms",
+    "type": "library",
+    "description": "Agms driver for the Omnipay PHP payment processing library",
+    "keywords": [
+        "agms",
+        "AGMS",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "onlinepaymentprocessing",
+        "avant-garde marketing solutions inc",
+        "purchase"
+    ],
+    "homepage": "http://onlinepaymentprocessing.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maanas Royy",
+            "email": "maanas@agms.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Agms\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "~2.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "~2.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    }
+}

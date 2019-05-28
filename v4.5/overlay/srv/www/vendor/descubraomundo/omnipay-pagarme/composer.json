@@ -1,0 +1,32 @@
+{
+    "name": "descubraomundo/omnipay-pagarme",
+    "description": "Pagarme driver for the Omnipay payment processing library",
+    "keywords": [
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "pagarme"
+    ],
+    "homepage": "https://github.com/descubraomundo/omnipay-pagarme",
+    "require": {
+        "php": ">=5.3.0",
+        "omnipay/common": "~2.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "~2.0",
+        "codeclimate/php-test-reporter": "^0.1.0@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Descubra o Mundo",
+            "email": "geeks@descubraomundo.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Pagarme\\" : "src/" }
+    },
+    "minimum-stability": "dev"
+}

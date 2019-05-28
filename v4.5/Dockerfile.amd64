@@ -1,0 +1,28 @@
+FROM webhippie/php-caddy:latest
+
+LABEL maintainer="Thomas Boerger <thomas@webhippie.de>" \
+  org.label-schema.name="Invoiceninja" \
+  org.label-schema.version="4.5" \
+  org.label-schema.vendor="Thomas Boerger" \
+  org.label-schema.schema-version="1.0"
+
+EXPOSE 8080
+
+VOLUME ["/var/lib/invoiceninja"]
+WORKDIR /srv/www
+ENTRYPOINT ["/usr/bin/entrypoint"]
+CMD ["/bin/s6-svscan", "/etc/s6"]
+
+RUN apk update && \
+  apk upgrade && \
+  apk add sqlite unifont ttf-inconsolata php7-gmp php7-xmlreader && \
+  rm -rf /var/cache/apk/*
+
+ENV PHP_COMPOSER_INSTALL false
+ENV INVOICENINJA_VERSION 4.5.13
+ENV INVOICENINJA_TARBALL https://github.com/invoiceninja/invoiceninja/archive/v${INVOICENINJA_VERSION}.tar.gz
+
+RUN curl -sLo - ${INVOICENINJA_TARBALL} | tar -xzf - --strip 1 -C /srv/www && \
+  chown -R caddy:caddy /srv/www
+
+COPY ./overlay ./overlay-amd64 /

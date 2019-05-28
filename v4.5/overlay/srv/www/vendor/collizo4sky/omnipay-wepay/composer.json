@@ -1,0 +1,27 @@
+{
+  "name": "collizo4sky/omnipay-wepay",
+  "type": "library",
+  "description": "WePay driver for the Omnipay payment processing library",
+  "keywords": [
+    "wepay",
+    "gateway",
+    "merchant",
+    "omnipay",
+    "pay",
+    "payment"
+  ],
+  "homepage": "https://github.com/collizo4sky/omnipay-wepay",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Omnipay\\WePay\\": "src/"
+    }
+  },
+  "require": {
+    "omnipay/common": "~2.3"
+  },
+  "require-dev": {
+    "omnipay/tests": "~2.0",
+    "satooshi/php-coveralls": "1.*"
+  }
+}
