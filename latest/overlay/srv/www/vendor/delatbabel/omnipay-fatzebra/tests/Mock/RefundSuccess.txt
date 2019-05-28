@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: close
+Status: 200 OK
+Cache-control: no-store
+Pragma: no-cache
+X-Request-Id: 718bd5ccb5839505c4e058511c93e746
+X-Runtime: 0.240901
+Date: Tue, 03 Feb 2015 20:37:28 GMT
+X-Rack-Cache: invalidate, pass
+X-Sandbox: true
+
+{"successful":true,"response":{"authorization":1422995848,"id":"525-R-XIVU3L9U","amount":10,"refunded":"Approved","message":"Approved","card_holder":"Example Customer","card_number":"400555XXXXXX0001","card_expiry":"2023-05-31","card_type":"VISA","transaction_id":"525-R-XIVU3L9U","successful":true,"transaction_date":"2015-02-04T07:37:28+11:00","response_code":"00","settlement_date":"2015-02-05"},"errors":[],"test":true}
