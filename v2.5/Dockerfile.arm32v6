@@ -22,7 +22,6 @@ ENV PHP_COMPOSER_INSTALL false
 ENV INVOICENINJA_VERSION 2.5.0.3
 ENV INVOICENINJA_TARBALL https://github.com/invoiceninja/invoiceninja/archive/v${INVOICENINJA_VERSION}.tar.gz
 
-RUN curl -sLo - ${INVOICENINJA_TARBALL} | tar -xzf - --strip 1 -C /srv/www && \
-  chown -R caddy:caddy /srv/www
-
+RUN curl -sLo - ${INVOICENINJA_TARBALL} | tar -xzf - --strip 1 -C /srv/www
 COPY ./overlay ./overlay-arm32v6 /
+RUN chown -R caddy:caddy /srv/www

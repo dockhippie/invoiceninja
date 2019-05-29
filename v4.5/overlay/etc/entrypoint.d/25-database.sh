@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -x INVOICENINJA_DB_TYPE
-[[ -z "${INVOICENINJA_DB_TYPE}" ]] && INVOICENINJA_DB_TYPE="mysql"
+[[ -z "${INVOICENINJA_DB_TYPE}" ]] && INVOICENINJA_DB_TYPE="sqlite"
 
 case "${INVOICENINJA_DB_TYPE}" in
   "sqlite")

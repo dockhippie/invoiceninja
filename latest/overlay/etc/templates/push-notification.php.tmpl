@@ -1,0 +1,15 @@
+<?php
+
+return [
+  'ninjaIOS' => [
+    'environment' => 'production',
+    'certificate' => '{{ getenv "INVOICENINJA_PUSH_IOS_CERTIFICATE_PATH" }}',
+    'passPhrase' => '{{ getenv "INVOICENINJA_PUSH_IOS_PASSPHRASE" }}',
+    'service' => 'apns'
+  ],
+  'ninjaAndroid' => [
+    'environment' => 'production',
+    'apiKey' => '{{ getenv "INVOICENINJA_PUSH_ANDROID_APIKEY" }}',
+    'service' => 'gcm'
+  ]
+];
