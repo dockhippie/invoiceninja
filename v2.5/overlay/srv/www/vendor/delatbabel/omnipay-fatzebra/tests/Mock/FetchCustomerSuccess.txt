@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: close
+Status: 200 OK
+Pragma: no-cache
+X-Request-Id: fd32370968b68c9d2fc5f06af4f235f4
+X-Runtime: 0.056729
+Date: Mon, 09 Feb 2015 07:28:45 GMT
+Cache-Control: no-store, private
+X-Rack-Cache: miss
+X-Sandbox: true
+
+{"successful":true,"response":{"id":"525-C-G1ZKF1Y3","email":"testcust@example.com","reference":"TestCust1234","first_name":"Example","last_name":"Customer","created_at":"2015-02-09T18:18:51+11:00","address":{"address":"1 Lower Creek Road","city":"Scrubby Creek","state":"QLD","postcode":"4999","country":"Australia"},"card_token":"daers4x6"},"errors":[],"test":true}

@@ -1,0 +1,28 @@
+HTTP/1.1 200 OK
+Server: Apache
+Content-Type: text/xml;charset=UTF-8
+Date: Fri, 07 Feb 2014 13:58:41 GMT
+Connection: Keep-Alive
+Content-Length: 846
+
+<?xml version="1.0" encoding="UTF-8"?>
+<netdirect version="4.1">
+  <approval>yes</approval>
+  <amount>20.12</amount>
+  <trans_id>469391781523238</trans_id>
+  <error>none</error>
+  <fee>0.78</fee>
+  <time>{ts'2014-02-07 13:58:41'}</time>
+  <firstname>EURFirstname</firstname>
+  <lastname>EURLastname</lastname>
+  <email>netellertest_eur@neteller.com</email>
+  <custom_1 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_2 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_3 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <total_fee>0.78</total_fee>
+  <client_currency>EUR</client_currency>
+  <client_amount>20.12</client_amount>
+  <merchant_currency>EUR</merchant_currency>
+  <merchant_amount>20.12</merchant_amount>
+  <fxrate>1.00000000</fxrate>
+</netdirect>

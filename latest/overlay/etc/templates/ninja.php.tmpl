@@ -1,0 +1,32 @@
+<?php
+
+return [
+  'video_urls' => [
+    'all' => '{{ getenv "INVOICENINJA_VIDEOS_URL" }}',
+    'custom_design' => '{{ getenv "INVOICENINJA_VIDEOS_CUSTOM_DESIGN_URL" }}',
+    'getting_started' => '{{ getenv "INVOICENINJA_VIDEOS_GETTING_STARTED_URL" }}',
+  ],
+  'lock_sent_invoices' => '{{ getenv "INVOICENINJA_LOCK_SENT_INVOICES" }}',
+  'time_tracker_web_url' => '{{ getenv "INVOICENINJA_TIME_TRACKER_WEB_URL" }}',
+  'knowledge_base_url' => '{{ getenv "INVOICENINJA_KNOWLEDGE_BASE_URL" }}',
+  'coupon_50_off' => {{ getenv "INVOICENINJA_COUPON_50_OFF" }},
+  'coupon_75_off' => {{ getenv "INVOICENINJA_COUPON_75_OFF" }},
+  'coupon_free_year' => {{ getenv "INVOICENINJA_COUPON_FREE_YEAR" }},
+  'exchange_rates_enabled' => {{ getenv "INVOICENINJA_EXCHANGE_RATES_ENABLED" }},
+  'exchange_rates_url' => '{{ getenv "INVOICENINJA_EXCHANGE_RATES_URL" }}',
+  'exchange_rates_base' => '{{ getenv "INVOICENINJA_EXCHANGE_RATES_BASE" }}',
+  'terms_of_service_url' => [
+    'hosted' => '{{ getenv "INVOICENINJA_TERMS_OF_SERVICE_URL" }}',
+    'selfhost' => '{{ getenv "INVOICENINJA_TERMS_OF_SERVICE_URL" }}',
+  ],
+  'privacy_policy_url' => [
+    'hosted' => '{{ getenv "INVOICENINJA_PRIVACY_POLICY_URL" }}',
+    'selfhost' => '{{ getenv "INVOICENINJA_PRIVACY_POLICY_URL" }}',
+  ],
+  'google_maps_enabled' => {{ getenv "INVOICENINJA_GOOGLE_MAPS_ENABLED" }},
+  'google_maps_api_key' => '{{ getenv "INVOICENINJA_GOOGLE_MAPS_API_KEY" }}',
+  'voice_commands' => [
+    'app_id' => '{{ getenv "INVOICENINJA_MSBOT_LUIS_APP_ID" }}',
+    'subscription_key' => '{{ getenv "INVOICENINJA_MSBOT_LUIS_SUBSCRIPTION_KEY" }}',
+  ],
+];

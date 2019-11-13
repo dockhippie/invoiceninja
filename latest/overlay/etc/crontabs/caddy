@@ -1,0 +1,3 @@
+0 8 * * * cd /srv/www && /usr/bin/php -f artisan ninja:send-invoices > /dev/null 2>&1
+0 8 * * * cd /srv/www && /usr/bin/php -f artisan ninja:send-reminders > /dev/null 2>&1
+0 8 * * * cd /srv/www && /usr/bin/php -f artisan ninja:send-renewals > /dev/null 2>&1

@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Server: Apache
+Content-Type: text/xml;charset=UTF-8
+Date: Thu, 30 Jan 2014 13:57:04 GMT
+Connection: Keep-Alive
+Content-Length: 374
+
+<?xml version="1.0" encoding="UTF-8"?>
+<netdirect version="4.1">
+  <approval>no</approval>
+  <error>1004</error>
+  <custom_1 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_2 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <custom_3 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+</netdirect>

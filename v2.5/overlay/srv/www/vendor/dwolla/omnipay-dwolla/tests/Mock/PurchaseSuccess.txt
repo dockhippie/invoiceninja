@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: cloudflare-nginx
+Date: Wed, 03 Jun 2015 21:22:07 GMT
+Content-Type: application/json; charset=utf-8
+Connection: keep-alive
+Cache-Control: private
+CF-RAY: 1f0e7391c9bd10ed-ORD
+Content-Length: 115
+
+{"Success":true,"Message":"Success","Response":{"CheckoutId":"c271d65c-7b71-421f-a80f-8682bb2ce2c4"},"_links":null}

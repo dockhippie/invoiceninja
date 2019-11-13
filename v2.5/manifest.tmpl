@@ -1,0 +1,19 @@
+image: webhippie/invoiceninja:2.5
+manifests:
+  -
+    image: webhippie/invoiceninja:2.5-amd64
+    platform:
+      architecture: amd64
+      os: linux
+  -
+    image: webhippie/invoiceninja:2.5-arm64v8
+    platform:
+      architecture: arm64
+      os: linux
+      variant: v8
+  -
+    image: webhippie/invoiceninja:2.5-arm32v6
+    platform:
+      architecture: arm
+      os: linux
+      variant: v6

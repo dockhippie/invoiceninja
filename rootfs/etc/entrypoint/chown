@@ -1,6 +1,0 @@
-#!/bin/bash
-
-chown -R caddy:caddy \
-  /srv/www \
-  /storage \
-  /srv/www/.env

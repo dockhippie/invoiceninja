@@ -1,0 +1,49 @@
+{
+    "name": "invoiceninja/omnipay-collection",
+    "description": "Collection of Omnipay drivers",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hillel Coren",
+            "email": "hillelcoren@gmail.com"
+        }
+    ],
+    "require": {
+        "abdala/omnipay-pagseguro": "0.2",
+        "agmscode/omnipay-agms": "~1.0",
+        "alfaproject/omnipay-skrill": "dev-master",
+        "andreas22/omnipay-fasapay": "1.*",
+        "bramdevries/omnipay-paymill": "^1.0",
+        "cardgate/omnipay-cardgate": "~2.0",
+        "delatbabel/omnipay-fatzebra": "dev-master",
+        "dercoder/omnipay-ecopayz": "~1.0",
+        "dercoder/omnipay-paysafecard": "dev-master",
+        "descubraomundo/omnipay-pagarme": "dev-master",
+        "digitickets/omnipay-barclays-epdq": "~3.0",
+        "digitickets/omnipay-datacash": "~3.0",
+        "digitickets/omnipay-realex": "~5.0",
+        "dioscouri/omnipay-cybersource": "dev-master",
+        "fotografde/omnipay-checkoutcom": "~2.0",
+        "fruitcakestudio/omnipay-sisow": "~2.0",
+        "justinbusschau/omnipay-secpay": "~2.0",
+        "lokielse/omnipay-alipay": "~1.4",
+        "meebio/omnipay-creditcall": "dev-master",
+        "meebio/omnipay-secure-trading": "dev-master",
+        "mfauveau/omnipay-pacnet": "~2.0",
+        "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
+        "omnipay/bitpay": "dev-master",
+        "omnipay/braintree": "^1.1",
+        "omnipay/gocardless": "dev-master",
+        "omnipay/mollie": "3.*",
+        "omnipay/omnipay": "~2.3",
+        "omnipay/stripe": "~2.0",
+        "softcommerce/omnipay-paytrace": "~1.0",
+        "vink/omnipay-komoju": "~1.0"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}

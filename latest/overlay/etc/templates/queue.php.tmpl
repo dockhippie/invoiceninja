@@ -1,0 +1,54 @@
+<?php
+
+return [
+  'default' => '{{ getenv "INVOICENINJA_QUEUE_DRIVER" }}',
+
+  'connections' => [
+    'sync' => [
+      'driver' => 'sync',
+    ],
+
+    'database' => [
+      'connection' => '{{ getenv "INVOICENINJA_QUEUE_DATABASE_CONNECTION" }}',
+      'driver' => 'database',
+      'table' => 'jobs',
+      'queue' => 'default',
+      'expire' => 60,
+    ],
+
+    'beanstalkd' => [
+      'driver' => 'beanstalkd',
+      'host'   => '{{ getenv "INVOICENINJA_QUEUE_BEANSTALKD_HOST" }}',
+      'queue'  => '{{ getenv "INVOICENINJA_QUEUE_BEANSTALKD_NAME" }}',
+      'ttr'    => 60,
+    ],
+
+    'sqs' => [
+      'driver' => 'sqs',
+      'key'    => '{{ getenv "INVOICENINJA_QUEUE_SQS_KEY" }}',
+      'secret' => '{{ getenv "INVOICENINJA_QUEUE_SQS_SECRET" }}',
+      'queue'  => '{{ getenv "INVOICENINJA_QUEUE_SQS_NAME" }}',
+      'region' => '{{ getenv "INVOICENINJA_QUEUE_SQS_REGION" }}',
+    ],
+
+    'iron' => [
+      'driver'  => 'iron',
+      'host'    => '{{ getenv "INVOICENINJA_QUEUE_IRON_HOST" }}',
+      'token'   => '{{ getenv "INVOICENINJA_QUEUE_IRON_TOKEN" }}',
+      'project' => '{{ getenv "INVOICENINJA_QUEUE_IRON_PROJECT" }}',
+      'queue'   => '{{ getenv "INVOICENINJA_QUEUE_IRON_NAME" }}',
+      'encrypt' => {{ getenv "INVOICENINJA_QUEUE_IRON_ENCRYPT" }},
+    ],
+
+    'redis' => [
+      'driver' => 'redis',
+      'queue'  => 'default',
+      'expire' => 60,
+    ],
+  ],
+
+  'failed' => [
+    'database' => '{{ getenv "INVOICENINJA_QUEUE_DATABASE_CONNECTION" }}',
+    'table' => 'failed_jobs',
+  ],
+];

@@ -1,0 +1,37 @@
+{
+    "name": "incube8/omnipay-multicards",
+    "type": "library",
+    "description": "MultiCards driver for the Omnipay payment processing library",
+    "keywords": [
+        "MultiCards",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment"
+    ],
+    "homepage": "https://github.com/incube8/omnipay-multicards",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Del",
+            "email": "del@incube8.sg"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Multicards\\" : "src/" }
+    },
+    "require": {
+        "php": ">=5.3.0",
+        "omnipay/common": "~2.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "~2.0",
+        "omnipay/dummy": "dev-master"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    }
+}

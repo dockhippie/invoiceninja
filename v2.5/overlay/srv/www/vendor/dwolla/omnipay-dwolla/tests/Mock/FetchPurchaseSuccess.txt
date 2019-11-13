@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: cloudflare-nginx
+Date: Thu, 04 Jun 2015 15:34:03 GMT
+Content-Type: application/json; charset=utf-8
+Connection: keep-alive
+Cache-Control: private
+CF-RAY: 1f14b31da4d00424-ORD
+Content-Length: 315
+
+{"Success":true,"Message":"Success","Response":{"CheckoutId":"c271d65c-7b71-421f-a80f-8682bb2ce2c4","Discount":null,"Shipping":null,"Tax":null,"Total":5.0000,"Status":"Expired","FundingSource":null,"TransactionId":null,"ProfileId":null,"DestinationTransactionId":null,"OrderItems":[],"Metadata":null},"_links":null}

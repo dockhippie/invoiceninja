@@ -1,0 +1,9 @@
+<?php
+
+return [
+  'phantomjs' => [
+    'secret' => '{{ getenv "INVOICENINJA_PHANTOMJS_SECRET" }}',
+    'bin_path' => '{{ getenv "INVOICENINJA_PHANTOMJS_BIN_PATH" }}',
+    'cloud_key' => '{{ getenv "INVOICENINJA_PHANTOMJS_CLOUD_KEY" }}',
+  ],
+];

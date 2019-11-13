@@ -1,0 +1,62 @@
+{
+  "name": "digitickets/omnipay-gocardlessv2",
+  "type": "library",
+  "description": "GoCardless gateway for Omnipay payment processing library, using the v2 GoCardless API",
+  "keywords": [
+    "gateway",
+    "merchant",
+    "omnipay",
+    "pay",
+    "payment",
+    "gocardless",
+    "purchase"
+  ],
+  "homepage": "https://github.com/digitickets/omnipay-gocardlessv2",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Digitickets Contributors",
+      "homepage": "https://github.com/digitickets/omnipay-gocardlessv2/contributors"
+    },
+    {
+      "name": "Kayla Daniels",
+      "email": "kayladnls@gmail.com",
+      "role": "Original Developer of Base Package"
+    },
+    {
+      "name": "Barry vd. Heuvel",
+      "email": "barryvdh@gmail.com",
+      "role": "Original Developer of Base Package"
+    },
+    {
+      "name": "Omnipay Contributors",
+      "homepage": "https://github.com/thephpleague/omnipay-braintree/contributors",
+      "role": "Original Base Package"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Omnipay\\GoCardlessV2\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Omnipay\\GoCardlessV2Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "omnipay/common": "~2.0",
+    "gocardless/gocardless-pro": "^1",
+    "php": "^5.5|^7"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.0",
+    "omnipay/tests": "~2.0",
+    "satooshi/php-coveralls": "^1.0"
+  },
+  "scripts": {
+    "run-sa": "vendor/bin/phpstan analyse --ansi --no-progress -c phpstan.neon -l 4 src tests",
+    "run-fixer": "vendor/bin/php-cs-fixer fix",
+    "run-tests": "vendor/bin/phpunit"
+  }
+}

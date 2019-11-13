@@ -1,0 +1,39 @@
+{
+    "name": "delatbabel/omnipay-fatzebra",
+    "type": "library",
+    "description": "Fatzebra / Paystream (Australia) driver for the Omnipay payment processing library",
+    "keywords": [
+        "fatzebra",
+        "paystream",
+        "australia",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment"
+    ],
+    "homepage": "https://github.com/delatbabel/omnipay-fatzebra",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Del",
+            "email": "del@babel.com.au"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Fatzebra\\" : "src/" }
+    },
+    "require": {
+        "php": ">=5.3.0",
+        "omnipay/common": "~2.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "~2.0",
+        "omnipay/dummy": "dev-master"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    }
+}

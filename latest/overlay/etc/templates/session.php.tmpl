@@ -1,0 +1,16 @@
+<?php
+
+return [
+	'driver' => '{{ getenv "INVOICENINJA_SESSION_DRIVER" }}',
+	'lifetime' => '{{ getenv "INVOICENINJA_SESSION_LIFETIME" }}',
+	'expire_on_close' => {{ getenv "INVOICENINJA_SESSION_EXPIRE_ON_CLOSE" }},
+	'encrypt' => {{ getenv "INVOICENINJA_SESSION_ENCRYPT" }},
+	'files' => storage_path().'/framework/sessions',
+	'connection' => '{{ getenv "INVOICENINJA_SESSION_CONNECTION" }}',
+	'table' => 'sessions',
+	'lottery' => [2, 100],
+	'cookie' => '{{ getenv "INVOICENINJA_SESSION_COOKIE" }}',
+	'path' => '/',
+	'domain' => '{{ getenv "INVOICENINJA_SESSION_DOMAIN" }}',
+	'secure' => {{ getenv "INVOICENINJA_SESSION_SECURE" }},
+];

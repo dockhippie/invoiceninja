@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: close
+Status: 200 OK
+Pragma: no-cache
+X-Request-Id: dce032758416da56fdda4b1513e9e5b0
+X-Runtime: 0.059068
+Date: Mon, 09 Feb 2015 10:05:47 GMT
+Cache-Control: no-store, private
+X-Rack-Cache: miss
+X-Sandbox: true
+
+{"successful":true,"response":{"id":"525-S-UQZHEXAT","customer":"525-C-6CSDKGME","plan":"525-PL-HT6AMO6J","frequency":"Weekly","start_date":"2015-02-10","end_date":null,"next_billing_date":"2015-02-10","reference":"TestSubscription577834","last_status":"Scheduled","is_active":true},"errors":[],"test":true}

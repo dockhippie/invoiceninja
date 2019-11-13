@@ -1,0 +1,53 @@
+<?php
+
+return [
+  'postmark' => '{{ getenv "INVOICENINJA_POSTMARK_API_TOKEN" }}',
+
+  'mailgun' => [
+    'domain' => '{{ getenv "INVOICENINJA_MAILGUN_DOMAIN" }}',
+    'secret' => '{{ getenv "INVOICENINJA_MAILGUN_SECRET" }}',
+  ],
+
+  'mandrill' => [
+    'secret' => '{{ getenv "INVOICENINJA_MANDRILL_SECRET" }}',
+  ],
+
+  'sparkpost' => [
+    'secret' => '{{ getenv "INVOICENINJA_SPARKPOST_SECRET" }}',
+  ],
+
+  'ses' => [
+    'key' => '{{ getenv "INVOICENINJA_SES_KEY" }}',
+    'secret' => '{{ getenv "INVOICENINJA_SES_SECRET" }}',
+    'region' => '{{ getenv "INVOICENINJA_SES_REGION" }}',
+  ],
+
+  'stripe' => [
+    'model' => '{{ getenv "INVOICENINJA_STRIPE_MODEL" }}',
+    'secret' => '{{ getenv "INVOICENINJA_STRIPE_SECRET" }}',
+  ],
+
+  'github' => [
+    'client_id' => '{{ getenv "INVOICENINJA_GITHUB_CLIENT_ID" }}',
+    'client_secret' => '{{ getenv "INVOICENINJA_GITHUB_CLIENT_SECRET" }}',
+    'redirect' => '{{ getenv "INVOICENINJA_GITHUB_OAUTH_REDIRECT" }}',
+  ],
+
+  'google' => [
+    'client_id' => '{{ getenv "INVOICENINJA_GOOGLE_CLIENT_ID" }}',
+    'client_secret' => '{{ getenv "INVOICENINJA_GOOGLE_CLIENT_SECRET" }}',
+    'redirect' => '{{ getenv "INVOICENINJA_GOOGLE_OAUTH_REDIRECT" }}',
+  ],
+
+  'facebook' => [
+    'client_id' => '{{ getenv "INVOICENINJA_FACEBOOK_CLIENT_ID" }}',
+    'client_secret' => '{{ getenv "INVOICENINJA_FACEBOOK_CLIENT_SECRET" }}',
+    'redirect' => '{{ getenv "INVOICENINJA_FACEBOOK_OAUTH_REDIRECT" }}',
+  ],
+
+  'linkedin' => [
+    'client_id' => '{{ getenv "INVOICENINJA_LINKEDIN_CLIENT_ID" }}',
+    'client_secret' => '{{ getenv "INVOICENINJA_LINKEDIN_CLIENT_SECRET" }}',
+    'redirect' => '{{ getenv "INVOICENINJA_LINKEDIN_OAUTH_REDIRECT" }}',
+  ],
+];

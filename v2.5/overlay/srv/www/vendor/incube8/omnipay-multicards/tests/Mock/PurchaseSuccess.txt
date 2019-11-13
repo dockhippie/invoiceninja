@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Feb 2013 18:25:28 GMT
+Content-Type: application/json;charset=utf-8
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+
+response_code=1&response_text=Accepted&billing_name=SOME_BILLER&trans_id=12345678&order_num=9876543&token_id=tokenTOKENtokenTOKEN&avs_response=Y

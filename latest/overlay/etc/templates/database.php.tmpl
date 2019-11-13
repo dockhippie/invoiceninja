@@ -1,0 +1,51 @@
+<?php
+
+return [
+  'fetch' => PDO::FETCH_CLASS,
+
+  'default' => '{{ getenv "INVOICENINJA_DB_TYPE" }}',
+
+  'connections' => [
+    'sqlite' => [
+      'driver' => 'sqlite',
+      'database' => '{{ getenv "INVOICENINJA_DB_DATABASE" }}',
+      'prefix' => '{{ getenv "INVOICENINJA_DB_PREFIX" }}',
+    ],
+    'mysql' => [
+      'driver' => 'mysql',
+      'host' => '{{ getenv "INVOICENINJA_DB_HOST" }}',
+      'port' => '{{ getenv "INVOICENINJA_DB_PORT" }}',
+      'database' => '{{ getenv "INVOICENINJA_DB_DATABASE" }}',
+      'username' => '{{ getenv "INVOICENINJA_DB_USERNAME" }}',
+      'password' => '{{ getenv "INVOICENINJA_DB_PASSWORD" }}',
+      'charset' => '{{ getenv "INVOICENINJA_DB_CHARSET" }}',
+      'collation' => '{{ getenv "INVOICENINJA_DB_COLLATION" }}',
+      'prefix' => '{{ getenv "INVOICENINJA_DB_PREFIX" }}',
+      'strict' => '{{ getenv "INVOICENINJA_DB_STRICT" }}',
+      'engine' => 'InnoDB',
+    ],
+    'pgsql' => [
+      'driver' => 'pgsql',
+      'host' => '{{ getenv "INVOICENINJA_DB_HOST" }}',
+      'port' => '{{ getenv "INVOICENINJA_DB_PORT" }}',
+      'database' => '{{ getenv "INVOICENINJA_DB_DATABASE" }}',
+      'username' => '{{ getenv "INVOICENINJA_DB_USERNAME" }}',
+      'password' => '{{ getenv "INVOICENINJA_DB_PASSWORD" }}',
+      'charset' => '{{ getenv "INVOICENINJA_DB_CHARSET" }}',
+      'prefix' => '{{ getenv "INVOICENINJA_DB_PREFIX" }}',
+      'schema' => '{{ getenv "INVOICENINJA_DB_SCHEMA" }}',
+    ],
+  ],
+
+  'migrations' => 'migrations',
+
+  'redis' => [
+    'cluster' => false,
+
+    'default' => [
+      'host' => '{{ getenv "INVOICENINJA_REDIS_HOST" }}',
+      'port' => {{ getenv "INVOICENINJA_REDIS_PORT" }},
+      'database' => {{ getenv "INVOICENINJA_REDIS_DATABASE" }},
+    ],
+  ],
+];

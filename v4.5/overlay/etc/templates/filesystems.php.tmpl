@@ -1,0 +1,48 @@
+<?php
+
+return [
+  'default' => '{{ getenv "INVOICENINJA_FILESYSTEMS_DEFAULT" }}',
+  'cloud' => '{{ getenv "INVOICENINJA_FILESYSTEMS_CLOUD" }}',
+
+  'disks' => [
+    'local' => [
+      'driver' => 'local',
+      'root' => storage_path().'/app',
+    ],
+
+    'logos' => [
+      'driver' => 'local',
+      'root' => '{{ getenv "INVOICENINJA_LOGO_PATH" }}',
+    ],
+
+    'documents' => [
+      'driver' => 'local',
+      'root' => storage_path().'/documents',
+    ],
+
+    's3' => [
+      'driver' => 's3',
+      'key' => '{{ getenv "INVOICENINJA_FILESYSTEMS_S3_KEY" }}',
+      'secret' => '{{ getenv "INVOICENINJA_FILESYSTEMS_S3_SECRET" }}',
+      'region' => '{{ getenv "INVOICENINJA_FILESYSTEMS_S3_REGION" }}',
+      'bucket' => '{{ getenv "INVOICENINJA_FILESYSTEMS_S3_BUCKET" }}',
+    ],
+
+    'rackspace' => [
+      'driver' => 'rackspace',
+      'username' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_USERNAME" }}',
+      'key' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_KEY" }}',
+      'container' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_CONTAINER" }}',
+      'endpoint' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_ENDPOINT" }}',
+      'region' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_REGION" }}',
+      'url_type' => '{{ getenv "INVOICENINJA_FILESYSTEMS_RACKSPACE_URL_TYPE" }}'
+    ],
+
+    'gcs' => [
+      'driver' => 'gcs',
+      'bucket' => '{{ getenv "INVOICENINJA_FILESYSTEMS_GCS_BUCKET" }}',
+      'project_id' => '{{ getenv "INVOICENINJA_FILESYSTEMS_GCS_PROJECT_ID" }}',
+      'credentials' => '{{ getenv "INVOICENINJA_FILESYSTEMS_GCS_CREDENTIALS_PATH" }}',
+    ],
+  ],
+];

@@ -1,0 +1,18 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - hhvm
+
+before_script:
+  - composer install -n --dev --prefer-source
+
+script: vendor/bin/phpcs --standard=PSR2 src && vendor/bin/phpunit --coverage-text
+
+after_script: vendor/bin/coveralls -v
+addons:
+    code_climate:
+        repo_token: 56fea2b6dd89f47edf37d02f313e8633016d5c6709b0047b475cf43c3fea40d6

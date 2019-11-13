@@ -1,0 +1,9 @@
+/vendor
+composer.lock
+composer.phar
+phpunit.xml
+.directory
+/dirlist.*
+/documents/
+/nbproject
+/build
