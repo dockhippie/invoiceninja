@@ -1,4 +1,4 @@
-FROM webhippie/php-caddy:latest
+FROM webhippie/php-caddy:latest-amd64
 
 LABEL maintainer="Thomas Boerger <thomas@webhippie.de>" \
   org.label-schema.name="Invoiceninja" \
