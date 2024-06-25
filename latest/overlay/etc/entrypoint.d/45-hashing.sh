@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+declare -x INVOICENINJA_BCRYPT_ROUNDS
+[[ -z "${INVOICENINJA_BCRYPT_ROUNDS}" ]] && INVOICENINJA_BCRYPT_ROUNDS=""
+
+true

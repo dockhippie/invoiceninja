@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source /usr/bin/entrypoint
+
+pushd ${APACHE_WEBROOT} >/dev/null
+    echo "> starting crond service"
+    exec supercronic /etc/crontab
+popd >/dev/null

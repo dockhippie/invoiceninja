@@ -1,0 +1,29 @@
+FROM ghcr.io/dockhippie/php-apache:8.3-arm64
+
+VOLUME ["/var/lib/invoiceninja"]
+EXPOSE 8080
+
+WORKDIR /srv/www
+CMD ["/usr/bin/container"]
+
+RUN apk update && \
+  apk upgrade && \
+  apk add php${PHP_PACKAGE_VERSION}-pecl-apcu sqlite git && \
+  rm -rf /var/cache/apk/*
+
+ENV PHP_COMPOSER_INSTALL=false
+
+# renovate: datasource=github-releases depName=invoiceninja/invoiceninja
+ENV INVOICENINJA_VERSION=5.9.9
+
+# renovate: datasource=github-releases depName=aptible/supercronic
+ENV SUPERCRONIC_VERSION=0.2.30
+
+RUN curl -sSLo - https://github.com/invoiceninja/invoiceninja/releases/download/v${INVOICENINJA_VERSION}/invoiceninja.tar | tar -xzf - -C /srv/www && \
+  cd /srv/www && \
+  rm -f /srv/www/.env* && \
+  chown -R apache:apache /srv/www && \
+  curl -sSLo /usr/bin/supercronic https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-arm64 && \
+  chmod +x /usr/bin/supercronic
+
+COPY ./overlay /

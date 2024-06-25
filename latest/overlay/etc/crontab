@@ -1,0 +1,2 @@
+0 8 * * * /usr/bin/php -f /srv/www/artisan ninja:send-recurring >/dev/null 2>&1
+0 8 * * * /usr/bin/php -f /srv/www/artisan ninja:send-reminders >/dev/null 2>&1

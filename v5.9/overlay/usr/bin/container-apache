@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source /usr/bin/entrypoint
+
+pushd ${APACHE_WEBROOT} >/dev/null
+    echo "> starting apache service"
+    exec httpd -DFOREGROUND
+popd >/dev/null
