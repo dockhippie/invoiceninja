@@ -3,5 +3,35 @@
     "extends": [
         "github>dockhippie/.github//renovate/preset"
     ],
-    "packageRules": []
+    "packageRules": [
+        {
+            "description": "Update tags without merge",
+            "datasources": [
+                "github-releases"
+            ],
+            "updateTypes": [
+                "major",
+                "minor"
+            ],
+            "enabled": false,
+            "automerge": false,
+            "matchPackageNames": [
+                "invoiceninja/invoiceninja"
+            ]
+        },
+        {
+            "description": "Update tags without merge",
+            "datasources": [
+                "github-releases"
+            ],
+            "updateTypes": [
+                "patch"
+            ],
+            "enabled": true,
+            "automerge": true,
+            "matchPackageNames": [
+                "invoiceninja/invoiceninja"
+            ]
+        }
+    ]
 }
