@@ -2,7 +2,7 @@
 
 [![Docker Build](https://github.com/dockhippie/invoiceninja/actions/workflows/docker.yml/badge.svg)](https://github.com/dockhippie/invoiceninja/actions/workflows/docker.yml) [![GitHub Repo](https://img.shields.io/badge/github-repo-yellowgreen)](https://github.com/dockhippie/invoiceninja)
 
-These are docker images for [Invoiceninja/Matomo][upstream] running on our
+These are docker images for [Invoiceninja][upstream] running on our
 [Apache PHP image][parent].
 
 ## Versions
