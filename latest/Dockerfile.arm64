@@ -14,7 +14,7 @@ RUN apk update && \
 ENV PHP_COMPOSER_INSTALL=false
 
 # renovate: datasource=github-releases depName=invoiceninja/invoiceninja
-ENV INVOICENINJA_VERSION=5.10.56
+ENV INVOICENINJA_VERSION=5.10.57
 
 # renovate: datasource=github-releases depName=aptible/supercronic
 ENV SUPERCRONIC_VERSION=0.2.33
