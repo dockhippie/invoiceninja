@@ -17,7 +17,7 @@ ENV PHP_COMPOSER_INSTALL=false
 ENV INVOICENINJA_VERSION=5.9.9
 
 # renovate: datasource=github-releases depName=aptible/supercronic
-ENV SUPERCRONIC_VERSION=0.2.38
+ENV SUPERCRONIC_VERSION=0.2.39
 
 RUN curl -sSLo - https://github.com/invoiceninja/invoiceninja/releases/download/v${INVOICENINJA_VERSION}/invoiceninja.tar | tar -xzf - -C /srv/www && \
   cd /srv/www && \
