@@ -1,4 +1,4 @@
-FROM ghcr.io/dockhippie/php-apache:8.4-arm@sha256:0e00b852273525f2a4bd9b0c85a1c9db498136fdf967eec5796c9d4c91069a50
+FROM ghcr.io/dockhippie/php-apache:8.4-arm@sha256:f897c851bd1308e0b34f8775965d5d394f15c4b741b26b7888d82f257f411a74
 
 VOLUME ["/var/lib/invoiceninja"]
 EXPOSE 8080
